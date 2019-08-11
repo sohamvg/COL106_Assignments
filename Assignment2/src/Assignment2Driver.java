@@ -13,8 +13,8 @@ public class Assignment2Driver {
     public int numSellers;
     public int sellerSleepTime, buyerSleepTime;
     public Queue<Item> inventory;
-    
-    public static void main(String[] args) throws InterruptedException {
+
+	public static void main(String[] args) throws InterruptedException {
 	
 	Assignment2Driver a_driver = new Assignment2Driver();
 	BufferedReader reader;

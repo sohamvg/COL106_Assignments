@@ -1,9 +1,8 @@
 
 public class PriorityQueue<V> implements QueueInterface<V>{
 
-    //private NodeBase<V>[] queue;
+    private NodeBase<V>[] queue;
     private int capacity, currentSize, front, rear;
-    private Object[] queue;
 	
     //TODO Complete the Priority Queue implementation
     // You may create other member variables/ methods if required.
@@ -12,14 +11,7 @@ public class PriorityQueue<V> implements QueueInterface<V>{
         this.currentSize = 0;
         this.front = 0;
         this.rear = capacity - 1;
-        //queue = (NodeBase<V>[]) new Object[capacity];
-        queue = new Object[capacity];
-    }
-
-    private NodeBase<V> getNode(int i) {
-        @SuppressWarnings(value = "unchecked")
-        NodeBase<V> e = (NodeBase<V>) queue[i];
-        return e;
+        queue = new Node[capacity];
     }
 
     public int size() {
@@ -44,20 +36,26 @@ public class PriorityQueue<V> implements QueueInterface<V>{
         else {
             if (currentSize == 0) {
                 rear = (rear + 1)%capacity;
-                //queue[rear] = node;
                 queue[rear] = node;
+                currentSize++;
             }
             else {
+                boolean flag = true;
                 int i = rear;
-                while (true) {
-                    if (node.getPriority() < getNode(i).getPriority()) {
-                        queue[(i + 1)%capacity] = queue[i];
+                queue[(i+1)%capacity] = node;
+                while (flag) {
+
+                    if (node.getPriority() < queue[i].getPriority()) {
+                        NodeBase<V> temp = queue[i];
+                        queue[i] = node;
+                        queue[(i+1)%capacity] = temp;
                     } else {
                         break;
                     }
+                    if (i == front) flag = false;
                     i = (i - 1)%capacity;
+                    if (i<0) i+=capacity;
                 }
-                queue[(i + 1)%capacity] = node;
                 rear = (rear + 1)%capacity;
                 currentSize++;
             }
@@ -70,9 +68,8 @@ public class PriorityQueue<V> implements QueueInterface<V>{
         if (isEmpty()) {
             System.out.println("queue is empty");
             return null;
-        }   
-        //NodeBase<V> temp = queue[front];
-        NodeBase<V> temp = getNode(front);
+        }
+        NodeBase<V> temp = queue[front];
         front = (front + 1)%capacity;
         currentSize = currentSize - 1;
         return temp;
@@ -84,8 +81,7 @@ public class PriorityQueue<V> implements QueueInterface<V>{
             System.out.println("Queue is empty");
 	}
 	for(int i=0; i<currentSize; i++) {
-            //queue[i+1].show();
-        getNode(i+1).show();
+            queue[i].show();
 	}
     }
 }

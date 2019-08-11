@@ -11,7 +11,7 @@ public class Queue<V> implements QueueInterface<V>{
     	this.rear = capacity - 1;
     	this.currentSize = 0;
     	//TODO check generic array
-    	queue = (NodeBase<V>[]) new Object[capacity];
+		queue = new Node[capacity];
     }
 
     public int size() {
