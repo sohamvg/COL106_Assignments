@@ -44,8 +44,8 @@ public class Assignment2Driver {
         
             //TODO Add all elements of the ArrayList named "list" to inventory queue
             // ...
-		for (int i = 0; i < list.size(); i++) {
-			a_driver.inventory.enqueue(list.get(i));
+		for (Node<Item> itemNode : list) {
+			a_driver.inventory.enqueue(itemNode);
 		}
 	    
             reader.close();
@@ -56,7 +56,6 @@ public class Assignment2Driver {
 	PriorityQueue<Item> catalog = new PriorityQueue<>(a_driver.catalogSize);
 	Seller[] sellers = new Seller[a_driver.numSellers];
 	Buyer[] buyers = new Buyer[a_driver.numBuyers];
-	PriorityQueue<Node<Item>> queue = new PriorityQueue<Node<Item>>(a_driver.catalogSize);
 	Lock lock = new ReentrantLock();
 	Condition full = lock.newCondition();
 	Condition empty = lock.newCondition();
@@ -64,16 +63,19 @@ public class Assignment2Driver {
 
 	// TODO Create multiple Buyer and Seller Threads and start them.
         // ...
-		//int totalThreads = a_driver.numBuyers + a_driver.numSellers
+
 		Thread[] sellerThreads = new Thread[a_driver.numSellers];
 		Thread[] buyerThreads = new Thread[a_driver.numBuyers];
 		for (int i = 0; i < a_driver.numSellers; i++) {
 			sellers[i] = new Seller(a_driver.sellerSleepTime,a_driver.catalogSize,lock,full,empty,catalog,a_driver.inventory);
+			sellers[i].setSleepTime(a_driver.sellerSleepTime);
 			sellerThreads[i] = new Thread(sellers[i]);
 			sellerThreads[i].start();
 		}
 		for (int j = 0; j < a_driver.numBuyers; j++) {
 			buyers[j] = new Buyer(a_driver.sellerSleepTime,a_driver.catalogSize,lock,full,empty,catalog,iteration);
+			buyers[j].setSleepTime(a_driver.buyerSleepTime);
+			buyers[j].setIteration(iteration);
 			buyerThreads[j] = new Thread(buyers[j]);
 			buyerThreads[j].start();
 		}

@@ -30,4 +30,19 @@ public class Buyer<V> extends BuyerBase<V> {
             lock.unlock();
 	}
     }
+
+    @Override
+    public void setSleepTime(int sleepTime) {
+        super.setSleepTime(sleepTime);
+    }
+
+    @Override
+    public void setIteration(int iteration) {
+        super.setIteration(iteration);
+    }
+
+    @Override
+    public void run() {
+        super.run();
+    }
 }

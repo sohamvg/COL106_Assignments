@@ -10,8 +10,7 @@ public class PriorityQueueTestDriver {
 		pq.add(5, "E");
 		pq.add(2, "F");
 		*/
-		//int j = 0;
-		//System.out.println(j % 5);
+
 		pq.enqueue(new Node<>(4,"A"));
 		pq.enqueue(new Node<>(10,"b"));
 		pq.enqueue(new Node<>(3,"c"));

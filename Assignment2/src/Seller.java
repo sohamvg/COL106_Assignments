@@ -21,8 +21,12 @@ public class Seller<V> extends SellerBase<V> {
             while (catalog.isFull()) {
                 full.await();
             }
+
             synchronized (inventory) { //TODO check sync
-                catalog.enqueue ((Node<V>) inventory.dequeue());
+                if (!inventory.isEmpty()) {
+                    Node<V> item = (Node<V>) inventory.dequeue();
+                    catalog.enqueue(item);
+                }
             }
             empty.signal();
 	} catch(Exception e) {
@@ -30,6 +34,16 @@ public class Seller<V> extends SellerBase<V> {
 	} finally {
             //TODO Complete this block
             lock.unlock();
-	}		
+	}
+    }
+
+    @Override
+    public void setSleepTime(int sleepTime) {
+        super.setSleepTime(sleepTime);
+    }
+
+    @Override
+    public void run() {
+        super.run();
     }
 }

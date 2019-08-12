@@ -31,7 +31,7 @@ public class PriorityQueue<V> implements QueueInterface<V>{
 
     public void enqueue(Node<V> node) {
         if (isFull()) {
-            System.out.println("queue overflow");
+            System.out.println("priority queue overflow");
         }
         else {
             if (currentSize == 0) {
@@ -40,10 +40,10 @@ public class PriorityQueue<V> implements QueueInterface<V>{
                 currentSize++;
             }
             else {
-                boolean flag = true;
+                boolean notReachedFront = true;
                 int i = rear;
                 queue[(i+1)%capacity] = node;
-                while (flag) {
+                while (notReachedFront) {
 
                     if (node.getPriority() < queue[i].getPriority()) {
                         NodeBase<V> temp = queue[i];
@@ -52,7 +52,7 @@ public class PriorityQueue<V> implements QueueInterface<V>{
                     } else {
                         break;
                     }
-                    if (i == front) flag = false;
+                    if (i == front) notReachedFront = false;
                     i = (i - 1)%capacity;
                     if (i<0) i+=capacity;
                 }
@@ -66,7 +66,7 @@ public class PriorityQueue<V> implements QueueInterface<V>{
     // always remove the element with minimum priority value
     public NodeBase<V> dequeue() {
         if (isEmpty()) {
-            System.out.println("queue is empty");
+            System.out.println("priority queue is empty");
             return null;
         }
         NodeBase<V> temp = queue[front];

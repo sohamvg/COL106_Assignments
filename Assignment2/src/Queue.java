@@ -42,7 +42,7 @@ public class Queue<V> implements QueueInterface<V>{
 
     public NodeBase<V> dequeue() {
 		if (isEmpty()) {
-			System.out.println("queue is empty");
+			System.out.println("queue is empty!!");
 			return null;
 		}
 		NodeBase<V> temp = queue[front];
