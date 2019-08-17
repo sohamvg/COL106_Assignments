@@ -22,13 +22,13 @@ public class Seller<V> extends SellerBase<V> {
                 full.await();
             }
 
-            synchronized (inventory) { //TODO check sync
+            synchronized (inventory) {
                 if (!inventory.isEmpty()) {
                     Node<V> item = (Node<V>) inventory.dequeue();
                     catalog.enqueue(item);
                 }
             }
-            empty.signal();
+            empty.signalAll();
 	} catch(Exception e) {
             e.printStackTrace();
 	} finally {

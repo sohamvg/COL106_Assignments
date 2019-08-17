@@ -19,7 +19,7 @@ public class Buyer<V> extends BuyerBase<V> {
                 empty.await();
             }
             NodeBase<V> n = catalog.dequeue();
-            full.signal();
+            full.signalAll();
 	    System.out.print("Consumed "); // DO NOT REMOVE (For Automated Testing)
             n.show(); // DO NOT REMOVE (For Automated Testing)
             // ...
