@@ -34,4 +34,9 @@ public class Student implements Student_ {
     public String cgpa() {
         return cgpa;
     }
+
+    @Override
+    public String toString() {
+        return fname+lname;
+    }
 }
