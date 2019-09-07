@@ -1,4 +1,4 @@
-public class MyHashTable_BST<K, T> implements MyHashTable_<K, T>, Hash {
+public class MyHashTable_BST<K extends Comparable<K>, T> implements MyHashTable_<K, T>, Hash {
     public int hashSize;
     public Object[] hashTable;
 
@@ -11,38 +11,61 @@ public class MyHashTable_BST<K, T> implements MyHashTable_<K, T>, Hash {
     public int insert(K key, T obj) {
         long hashedKey = Hash.djb2(key.toString(), hashSize);
         if (hashTable[(int) hashedKey] == null) {
-            hashTable[(int) hashedKey] = new BST<T>();
+            hashTable[(int) hashedKey] = new BST<T, K>();
         }
-        ((BST<T>) hashTable[(int) hashedKey]).insertBST(obj);
-        return ((BST<T>) hashTable[(int) hashedKey]).getCounter();
+        ((BST<T, K>) hashTable[(int) hashedKey]).insertBST(obj, key);
+        return ((BST<T, K>) hashTable[(int) hashedKey]).getCounter();
     }
 
     @Override
     public int update(K key, T obj) {
-        return 0;
+        boolean updated = false;
+        long hashedKey = Hash.djb2(key.toString(), hashSize);
+        BSTNode<T, K> b = ((BST<T, K>) hashTable[(int) hashedKey]).searchBST(key);
+        if (b != null) {
+            updated = true;
+            b.setData(obj);
+            b.setKey(key);
+        }
+        if (updated) {
+            return ((BST<T, K>) hashTable[(int) hashedKey]).getCounter();
+        }
+        return -1;
     }
 
     @Override
     public int delete(K key) {
         long hashedKey = Hash.djb2(key.toString(), hashSize);
-        BSTNode<T> b = new BSTNode<T>((T) key);
-        ((BST<T>) hashTable[(int) hashedKey]).searchBST(key);
-        ((BST<T>) hashTable[(int) hashedKey]).getCounter();
-        return 0;
+        boolean deleted = ((BST<T, K>) hashTable[(int) hashedKey]).deleteBST(key);
+        if (deleted) {
+            return ((BST<T, K>) hashTable[(int) hashedKey]).getCounter();
+        }
+        return -1;
     }
 
     @Override
     public boolean contains(K key) {
-        return false;
+        long hashedKey = Hash.djb2(key.toString(), hashSize);
+        return ((BST<T, K>) hashTable[(int) hashedKey]).searchBST(key) != null;
     }
 
     @Override
     public T get(K key) throws NotFoundException {
-        return null;
+        long hashedKey = Hash.djb2(key.toString(), hashSize);
+        BSTNode<T, K> b = ((BST<T, K>) hashTable[(int) hashedKey]).searchBST(key);
+        if (b != null) {
+            return b.getData();
+        }
+        throw new NotFoundException();
     }
 
     @Override
     public String address(K key) throws NotFoundException {
-        return null;
+        long hashedKey = Hash.djb2(key.toString(), hashSize);
+        BSTNode<T, K> b = ((BST<T, K>) hashTable[(int) hashedKey]).searchBST(key);
+        if (b != null) {
+            return hashedKey + "-" + ((BST<T, K>) hashTable[(int) hashedKey]).getAddress();
+        }
+        throw new NotFoundException();
     }
 }

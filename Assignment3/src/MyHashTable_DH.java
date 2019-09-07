@@ -1,8 +1,8 @@
 public class MyHashTable_DH<K, T> implements MyHashTable_<K, T>, Hash, Comparable<T> {
 
-    public int hashSize;
-    public Object[] hashTable;
-    public MyHashTable_DH(int hashSize) {
+    private int hashSize;
+    private Object[] hashTable;
+    MyHashTable_DH(int hashSize) {
         this.hashSize = hashSize;
         this.hashTable = new Object[hashSize];
     }
@@ -21,6 +21,7 @@ public class MyHashTable_DH<K, T> implements MyHashTable_<K, T>, Hash, Comparabl
             while (i<hashSize) {
                 i = i+1;
                 long newHashedKey = (Hash.djb2(key.toString(), hashSize) + i*Hash.sdbm(key.toString(), hashSize))%hashSize;
+                //System.out.println(key.toString() + " " + newHashedKey);
                 if (hashTable[(int) newHashedKey] == null) {
                     inserted = true;
                     hashTable[(int) newHashedKey] = obj;
@@ -39,7 +40,7 @@ public class MyHashTable_DH<K, T> implements MyHashTable_<K, T>, Hash, Comparabl
         int i = 1;
         boolean updated = false;
         long hashedKey = Hash.djb2(key.toString(), hashSize);
-        if (hashTable[(int) hashedKey].toString().equals(key.toString())) {
+        if (hashTable[(int) hashedKey] != null && hashTable[(int) hashedKey].equals(key)) {
             updated = true;
             hashTable[(int) hashedKey] = obj;
         }
@@ -47,8 +48,7 @@ public class MyHashTable_DH<K, T> implements MyHashTable_<K, T>, Hash, Comparabl
             while (i<hashSize) {
                 i = i+1;
                 long newHashedKey = (Hash.djb2(key.toString(), hashSize) + i*Hash.sdbm(key.toString(), hashSize))%hashSize;
-                if (hashTable[(int) newHashedKey].toString().equals(key.toString())) {
-                    hashTable[(int) newHashedKey]
+                if (hashTable[(int) newHashedKey] != null && hashTable[(int) newHashedKey].equals(key)) {
                     updated = true;
                     hashTable[(int) newHashedKey] = obj;
                     break;
@@ -66,7 +66,7 @@ public class MyHashTable_DH<K, T> implements MyHashTable_<K, T>, Hash, Comparabl
         int i = 1;
         boolean deleted = false;
         long hashedKey = Hash.djb2(key.toString(), hashSize);
-        if (hashTable[(int) hashedKey].toString().equals(key.toString())) {
+        if (hashTable[(int) hashedKey] != null && hashTable[(int) hashedKey].equals(key)) {
             deleted = true;
             hashTable[(int) hashedKey] = null;
         }
@@ -74,7 +74,7 @@ public class MyHashTable_DH<K, T> implements MyHashTable_<K, T>, Hash, Comparabl
             while (i<hashSize) {
                 i = i+1;
                 long newHashedKey = (Hash.djb2(key.toString(), hashSize) + i*Hash.sdbm(key.toString(), hashSize))%hashSize;
-                if (hashTable[(int) newHashedKey].toString().equals(key.toString())) {
+                if (hashTable[(int) newHashedKey] != null && hashTable[(int) newHashedKey].equals(key)) {
                     deleted = true;
                     hashTable[(int) newHashedKey] = null;
                     break;
@@ -93,14 +93,14 @@ public class MyHashTable_DH<K, T> implements MyHashTable_<K, T>, Hash, Comparabl
         boolean found = false;
         long hashedKey = Hash.djb2(key.toString(), hashSize);
         //System.out.println(hashTable[(int) hashedKey].toString());
-        if (hashTable[(int) hashedKey] != null && hashTable[(int) hashedKey].toString().equals(key.toString())) {
+        if (hashTable[(int) hashedKey] != null && hashTable[(int) hashedKey].equals(key)) {
             found = true;
         }
         else {
             while (i<hashSize) {
                 i = i+1;
                 long newHashedKey = (Hash.djb2(key.toString(), hashSize) + i*Hash.sdbm(key.toString(), hashSize))%hashSize;
-                if (hashTable[(int) hashedKey] != null && hashTable[(int) newHashedKey].toString().equals(key.toString())) {
+                if (hashTable[(int) hashedKey] != null && hashTable[(int) newHashedKey].equals(key)) {
                     found = true;
                     break;
                 }
@@ -113,15 +113,16 @@ public class MyHashTable_DH<K, T> implements MyHashTable_<K, T>, Hash, Comparabl
     public T get(K key) throws NotFoundException {
         int i = 1;
         long hashedKey = Hash.djb2(key.toString(), hashSize);
-        if (hashTable[(int) hashedKey].toString().equals(key.toString())) {
+        //System.out.println( " " + key.toString());
+        if (hashTable[(int) hashedKey] != null && hashTable[(int) hashedKey].equals(key)) {
             return  (T) hashTable[(int) hashedKey];
         }
         else {
             while (i<hashSize) {
                 i = i+1;
                 long newHashedKey = (Hash.djb2(key.toString(), hashSize) + i*Hash.sdbm(key.toString(), hashSize))%hashSize;
-                if (hashTable[(int) newHashedKey].toString().equals(key.toString())) {
-                    return  (T) hashTable[(int) hashedKey];
+                if (hashTable[(int) newHashedKey] != null && hashTable[(int) newHashedKey].equals(key)) {
+                    return  (T) hashTable[(int) newHashedKey];
                 }
             }
         }
@@ -132,14 +133,14 @@ public class MyHashTable_DH<K, T> implements MyHashTable_<K, T>, Hash, Comparabl
     public String address(K key) throws NotFoundException {
         int i = 1;
         long hashedKey = Hash.djb2(key.toString(), hashSize);
-        if (hashTable[(int) hashedKey].toString().equals(key.toString())) {
+        if (hashTable[(int) hashedKey] != null && hashTable[(int) hashedKey].equals(key)) {
             return Integer.toString((int) hashedKey);
         }
         else {
             while (i<hashSize) {
                 i = i+1;
                 long newHashedKey = (Hash.djb2(key.toString(), hashSize) + i*Hash.sdbm(key.toString(), hashSize))%hashSize;
-                if (hashTable[(int) newHashedKey].toString().equals(key.toString())) {
+                if (hashTable[(int) newHashedKey] != null && hashTable[(int) newHashedKey].equals(key)) {
                     return Integer.toString((int) newHashedKey);
                 }
             }

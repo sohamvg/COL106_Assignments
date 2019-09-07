@@ -37,6 +37,18 @@ public class Student implements Student_ {
 
     @Override
     public String toString() {
-        return fname+lname;
+        return fname;
+    }
+
+    /**
+     * compares fname+lname
+     * @param o o will be key
+     * @return compare
+     */
+    @Override
+    public boolean equals(Object o) {
+        if ((this.fname()+this.lname()).equals(o.toString())) return true;
+        if (this == null || o == null || getClass() != o.getClass()) return false;
+        return false;
     }
 }

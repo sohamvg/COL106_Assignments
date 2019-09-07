@@ -1,27 +1,46 @@
-public class BSTNode<T> implements Comparable<T>{
-    BSTNode<T> left, right;
+public class BSTNode<T, K> {
+    BSTNode<T, K> left, right;
     private T data;
+    private K key;
 
-    BSTNode(T data) {
+    BSTNode(T data, K key) {
         this.left = null;
         this.right = null;
         this.data = data;
+        this.key = key;
     }
 
-    T getData() {
+    public T getData() {
         return data;
     }
+
+    public void setData(T data) {
+        this.data = data;
+    }
+
+    public void setKey(K key) {
+        this.key = key;
+    }
+
+    public K getKey() {
+        return key;
+    }
+
+//    @Override
+//    public int compareTo(K k) {
+//        return this.key.compareTo(k);
+//    }
 
     /**
      * compares based on fname only
      * @param t
      * @return
      */
-    @Override
-    public int compareTo(T t) {
-        return data.toString().compareTo(t.toString());
-    }
-    public int compareTo(T h) {
-        return 0;
-    }
+
+//    @Override
+//    public boolean equals(Object o) {
+//        if (data.equals(o)) return true;
+//        if (this == null || o == null || getClass() != o.getClass()) return false;
+//        return false;
+//    }
 }
