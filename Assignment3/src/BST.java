@@ -2,6 +2,7 @@ public class BST<T, K extends Comparable<K>> {
     private BSTNode<T, K> root;
     private static int counter = 0;
     private static String address = "";
+    static boolean deleteError = false;
 
     BST() {
         root = null;
@@ -97,16 +98,15 @@ public class BST<T, K extends Comparable<K>> {
 
     public boolean deleteBST(K key) {
         counter = 1;
-        boolean deleted = false;
-        if (delete(root, key) != null) {
-            deleted = true;
-            root = delete(root, key);
-        }
-        return deleted;
+        deleteError = false;
+        root = delete(root, key);
+        return !deleteError;
     }
 
     private BSTNode<T,K> delete(BSTNode<T,K> root, K key) {
+        deleteError = false;
         if (root == null) {
+            deleteError = true;
             return null;
         }
         else if (root.getKey().compareTo(key) == 0) {
@@ -120,6 +120,7 @@ public class BST<T, K extends Comparable<K>> {
                 }
             }
             if (root == null) {
+                System.out.println("here3");
                 return null;
             }
             else if (root.left == null) {
@@ -135,6 +136,7 @@ public class BST<T, K extends Comparable<K>> {
         }
         else if (root.getKey().compareTo(key) < 0) {
             if (root.left == null) {
+                //System.out.println("here");
                 return null;
             }
             counter++;
@@ -142,6 +144,7 @@ public class BST<T, K extends Comparable<K>> {
         }
         else {
             if (root.right == null) {
+                //System.out.println("here2");
                 return null;
             }
             counter++;
