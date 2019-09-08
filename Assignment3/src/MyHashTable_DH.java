@@ -1,4 +1,4 @@
-public class MyHashTable_DH<K, T> implements MyHashTable_<K, T>, Hash, Comparable<T> {
+public class MyHashTable_DH<K, T> implements MyHashTable_<K, T>, Hash {
 
     private int hashSize;
     private Object[] hashTable;
@@ -9,7 +9,7 @@ public class MyHashTable_DH<K, T> implements MyHashTable_<K, T>, Hash, Comparabl
 
     @Override
     public int insert(K key, T obj) {
-        int i = 1;
+        int i = 0;
         boolean inserted = false;
         long hashedKey = Hash.djb2(key.toString(), hashSize);
         //System.out.println(key.toString() + " " + hashedKey);
@@ -30,14 +30,14 @@ public class MyHashTable_DH<K, T> implements MyHashTable_<K, T>, Hash, Comparabl
             }
         }
         if (inserted) {
-            return i;
+            return i+1;
         }
         return -1;
     }
 
     @Override
     public int update(K key, T obj) {
-        int i = 1;
+        int i = 0;
         boolean updated = false;
         long hashedKey = Hash.djb2(key.toString(), hashSize);
         if (hashTable[(int) hashedKey] != null && hashTable[(int) hashedKey].equals(key)) {
@@ -56,14 +56,14 @@ public class MyHashTable_DH<K, T> implements MyHashTable_<K, T>, Hash, Comparabl
             }
         }
         if (updated) {
-            return i;
+            return i+1;
         }
         return -1;
     }
 
     @Override
     public int delete(K key) {
-        int i = 1;
+        int i = 0;
         boolean deleted = false;
         long hashedKey = Hash.djb2(key.toString(), hashSize);
         if (hashTable[(int) hashedKey] != null && hashTable[(int) hashedKey].equals(key)) {
@@ -82,14 +82,14 @@ public class MyHashTable_DH<K, T> implements MyHashTable_<K, T>, Hash, Comparabl
             }
         }
         if (deleted) {
-            return i;
+            return i+1;
         }
         return -1;
     }
 
     @Override
     public boolean contains(K key) {
-        int i = 1;
+        int i = 0;
         boolean found = false;
         long hashedKey = Hash.djb2(key.toString(), hashSize);
         //System.out.println(hashTable[(int) hashedKey].toString());
@@ -111,7 +111,7 @@ public class MyHashTable_DH<K, T> implements MyHashTable_<K, T>, Hash, Comparabl
 
     @Override
     public T get(K key) throws NotFoundException {
-        int i = 1;
+        int i = 0;
         long hashedKey = Hash.djb2(key.toString(), hashSize);
         //System.out.println( " " + key.toString());
         if (hashTable[(int) hashedKey] != null && hashTable[(int) hashedKey].equals(key)) {
@@ -131,7 +131,7 @@ public class MyHashTable_DH<K, T> implements MyHashTable_<K, T>, Hash, Comparabl
 
     @Override
     public String address(K key) throws NotFoundException {
-        int i = 1;
+        int i = 0;
         long hashedKey = Hash.djb2(key.toString(), hashSize);
         if (hashTable[(int) hashedKey] != null && hashTable[(int) hashedKey].equals(key)) {
             return Integer.toString((int) hashedKey);
@@ -146,10 +146,5 @@ public class MyHashTable_DH<K, T> implements MyHashTable_<K, T>, Hash, Comparabl
             }
         }
         throw new NotFoundException();
-    }
-
-    @Override
-    public int compareTo(T t) {
-        return 0;
     }
 }

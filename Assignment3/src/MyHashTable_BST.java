@@ -1,8 +1,8 @@
 public class MyHashTable_BST<K extends Comparable<K>, T> implements MyHashTable_<K, T>, Hash {
-    public int hashSize;
-    public Object[] hashTable;
+    private int hashSize;
+    private Object[] hashTable;
 
-    public MyHashTable_BST(int hashSize) {
+    MyHashTable_BST(int hashSize) {
         this.hashSize = hashSize;
         this.hashTable = new Object[hashSize];
     }

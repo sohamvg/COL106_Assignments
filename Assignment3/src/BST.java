@@ -1,8 +1,8 @@
-public class BST<T, K extends Comparable<K>> {
+class BST<T, K extends Comparable<K>> {
     private BSTNode<T, K> root;
     private static int counter = 0;
     private static String address = "";
-    static boolean deleteError = false;
+    private static boolean deleteError = false;
 
     BST() {
         root = null;
@@ -44,31 +44,6 @@ public class BST<T, K extends Comparable<K>> {
         return search(root, key);
     }
 
-/*
-    private BSTNode<T> search(BSTNode<T> root, T data) {
-        if (root == null || root.getData().toString().equals(data.toString())) {
-            return root;
-        }
-        else if (root.compareTo(data) <= 0) {
-            counter++;
-            return search(root.right, data);
-        }
-        counter++;
-        return search(root.left, data);
-    }
-    private BSTNode<T, K> search(BSTNode<T, K> root, K key) { // key is key.first
-        if (root == null || root.getData().toString().equals(key.toString())) {
-            return root;
-        }
-        else if (root.getData().toString().compareTo(key.toString()) < 0) {
-            counter++;
-            return search(root.right, key);
-        }
-        counter++;
-        return search(root.left, key);
-    }
-*/
-
     private BSTNode<T, K> search(BSTNode<T, K> root, K key) {
         if (root == null) {
             return null;
@@ -96,47 +71,60 @@ public class BST<T, K extends Comparable<K>> {
         return search(root.left, key);
     }
 
-    public boolean deleteBST(K key) {
+    boolean deleteBST(K key) {
         counter = 1;
         deleteError = false;
+        //System.out.println(key.toString());
         root = delete(root, key);
         return !deleteError;
     }
 
     private BSTNode<T,K> delete(BSTNode<T,K> root, K key) {
-        deleteError = false;
         if (root == null) {
             deleteError = true;
             return null;
         }
         else if (root.getKey().compareTo(key) == 0) {
+            //System.out.println("here f");
             while (root != null) {
                 if (root.getKey().toString().equals(key.toString())) {
+                    //System.out.println("here f");
                     break;
                 }
                 else {
+                    //System.out.println("here f");
                     counter++;
                     root = root.left;
                 }
             }
             if (root == null) {
-                System.out.println("here3");
+                //System.out.println("here n");
+                deleteError = true;
                 return null;
             }
             else if (root.left == null) {
+                //System.out.println("here l");
+                counter++; // TODO check
                 return root.right;
             }
             else if (root.right == null) {
+                //System.out.println("here r");
+                counter++; // TODO check
                 return root.left;
             }
+            //System.out.println("here i");
+            counter++; // TODO check
             BSTNode<T, K> insucc = inorderSuccessor(root.right);
+            //System.out.println(insucc.getKey().toString());
             root.setKey(insucc.getKey());
             root.setData(insucc.getData());
-            root.right = delete(root, root.getKey());
+            counter++; // TODO check
+            root.right = delete(root.right, insucc.getKey());
         }
         else if (root.getKey().compareTo(key) < 0) {
             if (root.left == null) {
                 //System.out.println("here");
+                deleteError = true;
                 return null;
             }
             counter++;
@@ -145,6 +133,7 @@ public class BST<T, K extends Comparable<K>> {
         else {
             if (root.right == null) {
                 //System.out.println("here2");
+                deleteError = true;
                 return null;
             }
             counter++;
@@ -156,6 +145,7 @@ public class BST<T, K extends Comparable<K>> {
     private BSTNode<T, K> inorderSuccessor(BSTNode<T, K> root) {
         BSTNode<T, K> successor = root;
         while (root.left != null) {
+            counter++; // TODO check
             successor = root.left;
             root = root.left;
         }

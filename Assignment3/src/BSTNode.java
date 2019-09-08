@@ -1,4 +1,4 @@
-public class BSTNode<T, K> {
+class BSTNode<T, K> {
     BSTNode<T, K> left, right;
     private T data;
     private K key;
@@ -10,37 +10,20 @@ public class BSTNode<T, K> {
         this.key = key;
     }
 
-    public T getData() {
+    T getData() {
         return data;
     }
 
-    public void setData(T data) {
+    void setData(T data) {
         this.data = data;
     }
 
-    public void setKey(K key) {
+    void setKey(K key) {
         this.key = key;
     }
 
-    public K getKey() {
+    K getKey() {
         return key;
     }
 
-//    @Override
-//    public int compareTo(K k) {
-//        return this.key.compareTo(k);
-//    }
-
-    /**
-     * compares based on fname only
-     * @param t
-     * @return
-     */
-
-//    @Override
-//    public boolean equals(Object o) {
-//        if (data.equals(o)) return true;
-//        if (this == null || o == null || getClass() != o.getClass()) return false;
-//        return false;
-//    }
 }

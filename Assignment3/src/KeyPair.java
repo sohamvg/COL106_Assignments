@@ -7,7 +7,7 @@ public class KeyPair<X, Y> implements Comparable<KeyPair<X, Y>> {
         this.second = second;
     }
 
-    public X getFirst() {
+    private X getFirst() {
         return first;
     }
 
