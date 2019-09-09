@@ -106,7 +106,7 @@ public class Assignment3 {
                 reader1.close();
 
             } catch (IOException e) {
-                e.printStackTrace();
+                System.out.println("E");
             }
         }
         else if (type.equals("SCBST")) {
@@ -202,7 +202,7 @@ public class Assignment3 {
                 reader1.close();
 
             } catch (IOException e) {
-                e.printStackTrace();
+                System.out.println("E");
             }
         }
     }
