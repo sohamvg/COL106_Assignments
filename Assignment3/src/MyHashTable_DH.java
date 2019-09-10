@@ -17,7 +17,7 @@ public class MyHashTable_DH<K, T> implements MyHashTable_<K, T>, Hash {
             inserted = true;
             hashTable[(int) hashedKey] = obj;
         }
-        else {
+        else if (!hashTable[(int) hashedKey].equals(key)) {
             while (i<hashSize) {
                 i = i+1;
                 long newHashedKey = (Hash.djb2(key.toString(), hashSize) + i*Hash.sdbm(key.toString(), hashSize))%hashSize;
@@ -27,12 +27,15 @@ public class MyHashTable_DH<K, T> implements MyHashTable_<K, T>, Hash {
                     hashTable[(int) newHashedKey] = obj;
                     break;
                 }
+                else if (hashTable[(int) newHashedKey].equals(key)){
+                    break;
+                }
             }
         }
         if (inserted) {
             return i+1;
         }
-        return -1;
+        else return -1;
     }
 
     @Override
@@ -58,7 +61,7 @@ public class MyHashTable_DH<K, T> implements MyHashTable_<K, T>, Hash {
         if (updated) {
             return i+1;
         }
-        return -1;
+        else return -1;
     }
 
     @Override
@@ -84,7 +87,7 @@ public class MyHashTable_DH<K, T> implements MyHashTable_<K, T>, Hash {
         if (deleted) {
             return i+1;
         }
-        return -1;
+        else return -1;
     }
 
     @Override

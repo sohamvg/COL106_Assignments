@@ -3,6 +3,7 @@ class BST<T, K extends Comparable<K>> {
     private static int counter = 0;
     private static String address = "";
     private static boolean deleteError = false;
+    private static boolean insertError = false;
 
     BST() {
         root = null;
@@ -16,10 +17,12 @@ class BST<T, K extends Comparable<K>> {
         return address;
     }
 
-    void insertBST(T data, K key)
+    boolean insertBST(T data, K key)
     {
+        insertError = false;
         counter = 1;
         root = insert(root, data, key);
+        return !insertError;
     }
 
     private BSTNode<T, K> insert(BSTNode<T, K> root, T data, K key) {
@@ -37,12 +40,16 @@ class BST<T, K extends Comparable<K>> {
             }
         }
         else { // Node is inserted to left if first name is same
-            counter++;
-            if (root.left != null) {
-                root.left = insert(root.left, data, key);
+            if (root.getKey().toString().equals(key.toString())) { // same fullname
+                insertError = true;
             }
             else {
-                root.left = new BSTNode<>(data, key);
+                counter++;
+                if (root.left != null) {
+                    root.left = insert(root.left, data, key);
+                } else {
+                    root.left = new BSTNode<>(data, key);
+                }
             }
         }
         return root;

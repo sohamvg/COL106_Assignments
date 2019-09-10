@@ -125,7 +125,11 @@ public class Assignment3 {
                                 KeyPair<String, String> k = new KeyPair<>(words[1], words[2]);
                                 Student s = new Student(words[1], words[2], words[3], words[4], words[5]);
                                 int n = hashTable_bst.insert(k, s);
-                                System.out.println(n);
+                                if (n<0) {
+                                    throw new InvalidValueException();
+                                } else {
+                                    System.out.println(n);
+                                }
                             } catch (Exception e) {
                                 System.out.println("E");
                             }

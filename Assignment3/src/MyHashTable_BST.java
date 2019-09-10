@@ -13,8 +13,11 @@ public class MyHashTable_BST<K extends Comparable<K>, T> implements MyHashTable_
         if (hashTable[(int) hashedKey] == null) {
             hashTable[(int) hashedKey] = new BST<T, K>();
         }
-        ((BST<T, K>) hashTable[(int) hashedKey]).insertBST(obj, key);
-        return ((BST<T, K>) hashTable[(int) hashedKey]).getCounter();
+        boolean inserted = ((BST<T, K>) hashTable[(int) hashedKey]).insertBST(obj, key);
+        if (inserted) {
+            return ((BST<T, K>) hashTable[(int) hashedKey]).getCounter();
+        }
+        else {return -1;}
     }
 
     @Override
@@ -30,7 +33,7 @@ public class MyHashTable_BST<K extends Comparable<K>, T> implements MyHashTable_
         if (updated) {
             return ((BST<T, K>) hashTable[(int) hashedKey]).getCounter();
         }
-        return -1;
+        else return -1;
     }
 
     @Override
@@ -40,7 +43,7 @@ public class MyHashTable_BST<K extends Comparable<K>, T> implements MyHashTable_
         if (deleted) {
             return ((BST<T, K>) hashTable[(int) hashedKey]).getCounter();
         }
-        return -1;
+        else return -1;
     }
 
     @Override
@@ -56,7 +59,7 @@ public class MyHashTable_BST<K extends Comparable<K>, T> implements MyHashTable_
         if (b != null) {
             return b.getData();
         }
-        throw new NotFoundException();
+        else throw new NotFoundException();
     }
 
     @Override
@@ -66,6 +69,6 @@ public class MyHashTable_BST<K extends Comparable<K>, T> implements MyHashTable_
         if (b != null) {
             return hashedKey + "-" + ((BST<T, K>) hashTable[(int) hashedKey]).getAddress();
         }
-        throw new NotFoundException();
+        else throw new NotFoundException();
     }
 }
