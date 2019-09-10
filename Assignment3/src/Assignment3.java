@@ -32,6 +32,7 @@ public class Assignment3 {
                                 }
                             } catch (Exception e) {
                                 System.out.println("E");
+               //                 e.printStackTrace();
                             }
                             break;
                         }
@@ -61,6 +62,7 @@ public class Assignment3 {
                                 }
                             } catch (Exception e) {
                                 System.out.println("E");
+             //                   e.printStackTrace();
                             }
                             break;
                         }
@@ -71,6 +73,7 @@ public class Assignment3 {
                                 System.out.println(addr);
                             } catch (Exception e) {
                                 System.out.println("E");
+           //                     e.printStackTrace();
                             }
                             break;
                         }
@@ -85,6 +88,7 @@ public class Assignment3 {
                                 }
                             } catch (Exception e) {
                                 System.out.println("E");
+         //                       e.printStackTrace();
                             }
                             break;
                         }
@@ -95,6 +99,7 @@ public class Assignment3 {
                                 System.out.println(s.fname()+" "+s.lname()+" "+s.hostel()+" "+s.department()+" "+s.cgpa());
                             } catch (Exception e) {
                                 System.out.println("E");
+           //                     e.printStackTrace();
                             }
                             break;
                         }
@@ -132,6 +137,7 @@ public class Assignment3 {
                                 }
                             } catch (Exception e) {
                                 System.out.println("E");
+             //                   e.printStackTrace();
                             }
                             break;
                         }
@@ -147,6 +153,7 @@ public class Assignment3 {
                                 }
                             } catch (Exception e) {
                                 System.out.println("E");
+               //                 e.printStackTrace();
                             }
                             break;
                         }
@@ -161,6 +168,7 @@ public class Assignment3 {
                                 }
                             } catch (Exception e) {
                                 System.out.println("E");
+                 //               e.printStackTrace();
                             }
                             break;
                         }
@@ -171,6 +179,7 @@ public class Assignment3 {
                                 System.out.println(s.fname()+" "+s.lname()+" "+s.hostel()+" "+s.department()+" "+s.cgpa());
                             } catch (Exception e) {
                                 System.out.println("E");
+         //                       e.printStackTrace();
                             }
                             break;
                         }
@@ -181,6 +190,7 @@ public class Assignment3 {
                                 System.out.println(addr);
                             } catch (Exception e) {
                                 System.out.println("E");
+                                e.printStackTrace();
                             }
                             break;
                         }
@@ -195,6 +205,7 @@ public class Assignment3 {
                                 }
                             } catch (Exception e) {
                                 System.out.println("E");
+    //                            e.printStackTrace();
                             }
                             break;
                         }

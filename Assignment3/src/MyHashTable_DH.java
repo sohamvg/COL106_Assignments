@@ -103,7 +103,7 @@ public class MyHashTable_DH<K, T> implements MyHashTable_<K, T>, Hash {
             while (i<hashSize) {
                 i = i+1;
                 long newHashedKey = (Hash.djb2(key.toString(), hashSize) + i*Hash.sdbm(key.toString(), hashSize))%hashSize;
-                if (hashTable[(int) hashedKey] != null && hashTable[(int) newHashedKey].equals(key)) {
+                if (hashTable[(int) newHashedKey] != null && hashTable[(int) newHashedKey].equals(key)) {
                     found = true;
                     break;
                 }
