@@ -63,10 +63,7 @@ class BST<T, K extends Comparable<K>> {
     }
 
     private BSTNode<T, K> search(BSTNode<T, K> root, K key) { ////////////////////
-        //if (key.toString().equals("ShyamBansal")) {System.out.println(root != null);}
-        //if (root != null && key.toString().equals("ShyamBansal")) {System.out.println("alpha 0" + root.getKey().toString());}
-        //if (root != null && root.left != null && key.toString().equals("ShyamBansal")) {System.out.println("alpha 0L" + root.left.getKey().toString());}
-        //if (root != null && root.right != null && key.toString().equals("ShyamBansal")) {System.out.println("alpha 0R" + root.right.getKey().toString());}
+
         if (root == null) {
             //System.out.println("here 1");
             return null;
@@ -75,7 +72,7 @@ class BST<T, K extends Comparable<K>> {
         else if (root.getKey().compareTo(key) > 0) {
 
             if (root.left != null) {
-                counter++;
+                counter++; // touched root.left
                 //System.out.println("key less" + counter);
                 address = address + "L";
             }
@@ -88,7 +85,7 @@ class BST<T, K extends Comparable<K>> {
             }
             else {
                 if (root.right != null) {
-                    counter++;
+                    counter++; // touched root.right
                     //System.out.println("key more" + counter);
                     address = address + "R";
                 }
@@ -142,20 +139,26 @@ class BST<T, K extends Comparable<K>> {
                 }
 
                 else {
-                    counter++; // touched root.right TODO check
+                    counter++; // touched root.right
                     //    System.out.println("here i" + counter);
-                    Object[] insucc2 = inorderSuccessor2(root.right);
-                    BSTNode<T, K> p = (BSTNode<T, K>) insucc2[0];
-                    BSTNode<T, K> r = (BSTNode<T, K>) insucc2[1];
+                    BSTNode<T, K>[] insucc2 = inorderSuccessor2(root.right);
+                    BSTNode<T, K> p = insucc2[0];
+                    BSTNode<T, K> r = insucc2[1];
                     root.setKey(r.getKey());
                     root.setData(r.getData());
 //            System.out.println("here too");
-//            counter++; // TODO check
+//            counter++; //
                     if (p.left == null) { // when insucc is -R // p is already touched and nothing to touch in p.left
                         //root.right = delete(p, r.getKey());
+                        if (root.right.right != null) {
+                            counter++; // touched root.right.right
+                        }
                         root.right = root.right.right;
                     } else { // when is insucc is -RLLL.... // p.left is nothing but r which is already touched
                         //p.left = delete(p.left, r.getKey());
+                        if (r.right != null){
+                            counter++; // touched r.right
+                        }
                         p.left = r.right;
                     }
                 }
@@ -185,9 +188,9 @@ class BST<T, K extends Comparable<K>> {
         return root;
     }
 
-
-    private Object[] inorderSuccessor2(BSTNode<T, K> root) {
-        Object[] res = new Object[2];
+    @SuppressWarnings("unchecked")
+    private BSTNode<T, K>[] inorderSuccessor2(BSTNode<T, K> root) {
+        BSTNode<T, K>[] res = new BSTNode[2];
         /*
         res[0] = prev // initial = root
         res[1] = root // initial = root

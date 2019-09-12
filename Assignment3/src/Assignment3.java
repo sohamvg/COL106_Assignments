@@ -190,7 +190,7 @@ public class Assignment3 {
                                 System.out.println(addr);
                             } catch (Exception e) {
                                 System.out.println("E");
-                                e.printStackTrace();
+            //                    e.printStackTrace();
                             }
                             break;
                         }

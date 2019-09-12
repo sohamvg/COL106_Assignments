@@ -112,6 +112,7 @@ public class MyHashTable_DH<K, T> implements MyHashTable_<K, T>, Hash {
         return found;
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public T get(K key) throws NotFoundException {
         int i = 0;

@@ -1,10 +1,12 @@
 public class MyHashTable_BST<K extends Comparable<K>, T> implements MyHashTable_<K, T>, Hash {
     private int hashSize;
-    private Object[] hashTable;
+    //private Object[] hashTable;
+    private BST<T, K>[] hashTable;
 
+    @SuppressWarnings("unchecked")
     MyHashTable_BST(int hashSize) {
         this.hashSize = hashSize;
-        this.hashTable = new Object[hashSize];
+        this.hashTable = new BST[hashSize];
     }
 
     @Override
@@ -13,9 +15,9 @@ public class MyHashTable_BST<K extends Comparable<K>, T> implements MyHashTable_
         if (hashTable[(int) hashedKey] == null) {
             hashTable[(int) hashedKey] = new BST<T, K>();
         }
-        boolean inserted = ((BST<T, K>) hashTable[(int) hashedKey]).insertBST(obj, key);
+        boolean inserted = hashTable[(int) hashedKey].insertBST(obj, key);
         if (inserted) {
-            return ((BST<T, K>) hashTable[(int) hashedKey]).getCounter();
+            return hashTable[(int) hashedKey].getCounter();
         }
         else {return -1;}
     }
@@ -24,14 +26,14 @@ public class MyHashTable_BST<K extends Comparable<K>, T> implements MyHashTable_
     public int update(K key, T obj) {
         boolean updated = false;
         long hashedKey = Hash.djb2(key.toString(), hashSize);
-        BSTNode<T, K> b = ((BST<T, K>) hashTable[(int) hashedKey]).searchBST(key);
+        BSTNode<T, K> b = hashTable[(int) hashedKey].searchBST(key);
         if (b != null) {
             updated = true;
             b.setData(obj);
             b.setKey(key);
         }
         if (updated) {
-            return ((BST<T, K>) hashTable[(int) hashedKey]).getCounter();
+            return hashTable[(int) hashedKey].getCounter();
         }
         else return -1;
     }
@@ -39,9 +41,9 @@ public class MyHashTable_BST<K extends Comparable<K>, T> implements MyHashTable_
     @Override
     public int delete(K key) {
         long hashedKey = Hash.djb2(key.toString(), hashSize);
-        boolean deleted = ((BST<T, K>) hashTable[(int) hashedKey]).deleteBST(key);
+        boolean deleted = hashTable[(int) hashedKey].deleteBST(key);
         if (deleted) {
-            return ((BST<T, K>) hashTable[(int) hashedKey]).getCounter();
+            return hashTable[(int) hashedKey].getCounter();
         }
         else return -1;
     }
@@ -49,13 +51,13 @@ public class MyHashTable_BST<K extends Comparable<K>, T> implements MyHashTable_
     @Override
     public boolean contains(K key) {
         long hashedKey = Hash.djb2(key.toString(), hashSize);
-        return ((BST<T, K>) hashTable[(int) hashedKey]).searchBST(key) != null;
+        return hashTable[(int) hashedKey].searchBST(key) != null;
     }
 
     @Override
     public T get(K key) throws NotFoundException {
         long hashedKey = Hash.djb2(key.toString(), hashSize);
-        BSTNode<T, K> b = ((BST<T, K>) hashTable[(int) hashedKey]).searchBST(key);
+        BSTNode<T, K> b = hashTable[(int) hashedKey].searchBST(key);
         if (b != null) {
             return b.getData();
         }
@@ -65,9 +67,9 @@ public class MyHashTable_BST<K extends Comparable<K>, T> implements MyHashTable_
     @Override
     public String address(K key) throws NotFoundException {
         long hashedKey = Hash.djb2(key.toString(), hashSize);
-        BSTNode<T, K> b = ((BST<T, K>) hashTable[(int) hashedKey]).searchBST(key);
+        BSTNode<T, K> b = hashTable[(int) hashedKey].searchBST(key);
         if (b != null) {
-            return hashedKey + "-" + ((BST<T, K>) hashTable[(int) hashedKey]).getAddress();
+            return hashedKey + "-" + hashTable[(int) hashedKey].getAddress();
         }
         else throw new NotFoundException();
     }
