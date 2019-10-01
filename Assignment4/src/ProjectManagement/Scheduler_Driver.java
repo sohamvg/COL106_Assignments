@@ -1,15 +1,30 @@
 package ProjectManagement;
 
+import PriorityQueue.MaxHeap;
 import PriorityQueue.PriorityQueueDriverCode;
+import RedBlack.RBTree;
+import RedBlack.RedBlackNode;
+import Trie.Trie;
+import Trie.TrieNode;
 
 import java.io.*;
 import java.net.URL;
+import java.util.ArrayList;
 
 public class Scheduler_Driver extends Thread implements SchedulerInterface {
 
+    private static int globalTime = 0;
+
+    private static Trie<Project> projectTrie = new Trie<Project>();
+    private static Trie<User> userTrie = new Trie<User>();
+    private static MaxHeap<Job> jobMaxHeap = new MaxHeap<>();
+    private static RBTree<String, Job> allJobs = new RBTree<>();
+    private static ArrayList<Job> finishedJobs = new ArrayList<>();
+    private static ArrayList<Job> unfinishedJobs = new ArrayList<>();
 
     public static void main(String[] args) throws IOException {
         Scheduler_Driver scheduler_driver = new Scheduler_Driver();
+
 
         File file;
         if (args.length == 0) {
@@ -89,32 +104,79 @@ public class Scheduler_Driver extends Thread implements SchedulerInterface {
 
     @Override
     public void handle_project(String[] cmd) {
+        System.out.println("Creating Project");
+        String name = cmd[1];
+        int priority = Integer.parseInt(cmd[2]);
+        int budget = Integer.parseInt(cmd[3]);
+        Project project = new Project(name, priority, budget);
+        projectTrie.insert(name, project);
 
     }
 
     @Override
     public void handle_job(String[] cmd) {
+        System.out.println("Creating job");
+        String name = cmd[1];
+        int runtime = Integer.parseInt(cmd[4]);
+        Object searchProject = projectTrie.search(cmd[2]);
+        if (searchProject != null) {
+            Project project = (Project) ((TrieNode) searchProject).getValue();
 
+            Object searchUser = userTrie.search(cmd[3]);
+            if (searchUser != null) {
+
+                User user = (User) ((TrieNode) searchUser).getValue();
+                Job job = new Job(name,project,user,runtime,globalTime);
+
+                jobMaxHeap.insert(job);
+                allJobs.insert(name, job);
+                unfinishedJobs.add(job);
+
+            }
+            else {System.out.println("No such user exists:" + cmd[3]);}
+        }
+        else {System.out.println("No such project exists." + cmd[2]);}
     }
 
     @Override
     public void handle_user(String name) {
-
+        System.out.println("Creating user");
+        User user = new User(name);
+        userTrie.insert(user.getName(), user);
     }
 
     @Override
     public void handle_query(String key) {
+        System.out.println("Querying");
+        RedBlackNode searchJob = allJobs.search(key);
+        if (searchJob != null && searchJob.getValue() != null) {
+            Job job = (Job) searchJob.getValue();
 
+            if (job.isFinished()) {
+                System.out.println(job.getName() + ": COMPLETED");
+            }
+            else System.out.println(job.getName() + ": NOT FINISHED");
+        }
+        else System.out.println(key + ": NO SUCH JOB");
     }
 
     @Override
     public void handle_empty_line() {
+        System.out.println("Running code");
+        System.out.println("Remaining jobs: " + unfinishedJobs.size());
+        schedule();
 
     }
 
     @Override
     public void handle_add(String[] cmd) {
-
+        System.out.println("ADDING Budget");
+        Object searchProject = projectTrie.search(cmd[1]);
+        if (searchProject != null) {
+            Project project = (Project) ((TrieNode) searchProject).getValue();
+            project.addBudget(Integer.parseInt(cmd[2]));
+        }
+        else {System.out.println("No such project exists." + cmd[2]);}
     }
 
     @Override
@@ -124,6 +186,37 @@ public class Scheduler_Driver extends Thread implements SchedulerInterface {
 
     @Override
     public void schedule() {
+
+        Job job = jobMaxHeap.extractMax();
+
+        while (job != null) {
+
+            Object searchProject = projectTrie.search(job.getProject().getName());
+            if (searchProject != null) {
+                Project project = (Project) ((TrieNode) searchProject).getValue();
+                if (project.getBudget() >= job.getRuntime()) {
+
+                    System.out.println("Executing: " + job.getName() + " from: " + project.getName());
+
+                    job.setFinished(true);
+                    finishedJobs.add(job);
+                    unfinishedJobs.remove(job); // TODO
+                    globalTime+=job.getRuntime();
+                    job.setCompleteTime(globalTime);
+                    project.decreaseBudget(job.getRuntime());
+
+                    return;
+                }
+                else {
+                    System.out.println("Un-sufficient budget.");
+
+                    Job temp = job;
+                    job = jobMaxHeap.extractMax();
+                    jobMaxHeap.insert(temp);
+                }
+            }
+            else return;
+        }
 
     }
 }

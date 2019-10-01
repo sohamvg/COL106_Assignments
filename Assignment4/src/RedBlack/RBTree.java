@@ -1,13 +1,13 @@
 package RedBlack;
 
-
+// T is key, E is value
 public class RBTree<T extends Comparable<T>, E> implements RBTreeInterface<T, E>  {
 
     private RedBlackNode<T, E> root;
 
     private static boolean inserted = false;
 
-    RBTree() {
+    public RBTree() {
         this.root = null;
     }
 
