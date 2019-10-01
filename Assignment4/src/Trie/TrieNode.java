@@ -3,7 +3,7 @@ package Trie;
 
 import Util.NodeInterface;
 
-
+@SuppressWarnings("unchecked")
 public class TrieNode<T> implements NodeInterface<T> {
 
     private T value;
