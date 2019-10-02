@@ -10,6 +10,7 @@ import Trie.TrieNode;
 import java.io.*;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Iterator;
 
 public class Scheduler_Driver extends Thread implements SchedulerInterface {
 
@@ -100,11 +101,51 @@ public class Scheduler_Driver extends Thread implements SchedulerInterface {
     @Override
     public void run_to_completion() {
 
+//        Job job = jobMaxHeap.extractMax();
+//
+//        while (job != null) {
+//
+//            System.out.println("Running code");
+//            System.out.println("Remaining jobs: " + jobMaxHeap.heapSize());
+//
+//            Object searchProject = projectTrie.search(job.getProject().getName());
+//
+//            if (searchProject != null) {
+//                Project project = (Project) ((TrieNode) searchProject).getValue();
+//                if (project.getBudget() >= job.getRuntime()) {
+//
+//                    job.setFinished(true);
+//                    finishedJobs.add(job);
+//                    globalTime+=job.getRuntime();
+//                    job.setCompleteTime(globalTime);
+//                    project.decreaseBudget(job.getRuntime());
+//
+//                    System.out.println("Executing: " + job.getName() + " from: " + project.getName());
+//                    System.out.println("Project: " + project.getName() + " budget remaining: " + project.getBudget());
+//                    job = jobMaxHeap.extractMax();
+//
+//                }
+//                else {
+//                    System.out.println("Un-sufficient budget.");
+//                    unfinishedJobs.add(job);
+//                    job = jobMaxHeap.extractMax();
+//                }
+//            }
+//            else return;
+//
+//            System.out.println("System execution completed");
+//        }
+
+        while (jobMaxHeap.heapSize() > 0) {
+            schedule();
+            System.out.println("System execution completed");
+        }
+
     }
 
     @Override
     public void handle_project(String[] cmd) {
-        System.out.println("Creating Project");
+        System.out.println("Creating project");
         String name = cmd[1];
         int priority = Integer.parseInt(cmd[2]);
         int budget = Integer.parseInt(cmd[3]);
@@ -130,12 +171,12 @@ public class Scheduler_Driver extends Thread implements SchedulerInterface {
 
                 jobMaxHeap.insert(job);
                 allJobs.insert(name, job);
-                unfinishedJobs.add(job);
+                // unfinishedJobs.add(job);
 
             }
-            else {System.out.println("No such user exists:" + cmd[3]);}
+            else {System.out.println("No such user exists: " + cmd[3]);}
         }
-        else {System.out.println("No such project exists." + cmd[2]);}
+        else {System.out.println("No such project exists. " + cmd[2]);}
     }
 
     @Override
@@ -162,10 +203,9 @@ public class Scheduler_Driver extends Thread implements SchedulerInterface {
 
     @Override
     public void handle_empty_line() {
-        System.out.println("Running code");
-        System.out.println("Remaining jobs: " + unfinishedJobs.size());
-        schedule();
 
+        schedule();
+        System.out.println("Execution cycle completed");
     }
 
     @Override
@@ -175,44 +215,68 @@ public class Scheduler_Driver extends Thread implements SchedulerInterface {
         if (searchProject != null) {
             Project project = (Project) ((TrieNode) searchProject).getValue();
             project.addBudget(Integer.parseInt(cmd[2]));
+
+            Iterator itr = unfinishedJobs.iterator();
+            while (itr.hasNext())
+            {
+                Job job = (Job) itr.next();
+                if (job.getProject().getName().equals(project.getName())) {
+                    jobMaxHeap.insert(job);
+                    itr.remove();
+                }
+            }
+
         }
         else {System.out.println("No such project exists." + cmd[2]);}
     }
 
     @Override
     public void print_stats() {
-
+        System.out.println("--------------STATS---------------");
+        System.out.println("Total jobs done: " + finishedJobs.size());
+        for (Job finishedJob : finishedJobs) {
+            System.out.println(finishedJob);
+        }
+        System.out.println("------------------------");
+        System.out.println("Unfinished jobs: ");
+        for (Job unfinishedJob : unfinishedJobs) {
+            System.out.println(unfinishedJob);
+        }
+        System.out.println("Total unfinished jobs: " + unfinishedJobs.size());
+        System.out.println("--------------STATS DONE---------------");
     }
 
     @Override
     public void schedule() {
+        System.out.println("Running code");
+        System.out.println("Remaining jobs: " + jobMaxHeap.heapSize());
 
         Job job = jobMaxHeap.extractMax();
 
         while (job != null) {
 
             Object searchProject = projectTrie.search(job.getProject().getName());
+
             if (searchProject != null) {
                 Project project = (Project) ((TrieNode) searchProject).getValue();
-                if (project.getBudget() >= job.getRuntime()) {
 
-                    System.out.println("Executing: " + job.getName() + " from: " + project.getName());
+                System.out.println("Executing: " + job.getName() + " from: " + project.getName());
+                if (project.getBudget() >= job.getRuntime()) {
 
                     job.setFinished(true);
                     finishedJobs.add(job);
-                    unfinishedJobs.remove(job); // TODO
                     globalTime+=job.getRuntime();
                     job.setCompleteTime(globalTime);
                     project.decreaseBudget(job.getRuntime());
+                    System.out.println("Project: " + project.getName() + " budget remaining: " + project.getBudget());
 
-                    return;
+                    break;
                 }
                 else {
                     System.out.println("Un-sufficient budget.");
 
-                    Job temp = job;
+                    unfinishedJobs.add(job);
                     job = jobMaxHeap.extractMax();
-                    jobMaxHeap.insert(temp);
                 }
             }
             else return;

@@ -70,8 +70,6 @@ public class MaxHeap<T extends Comparable<T>> implements PriorityQueueInterface<
         maxHeap.add(heapElement);
 
         moveUp(maxHeap.size()-1);
-        // if (maxHeap.size() >= 2) System.out.println(maxHeap.get(1).toString());
-
     }
 
     @Override
@@ -119,8 +117,9 @@ public class MaxHeap<T extends Comparable<T>> implements PriorityQueueInterface<
         return null;
     }
 */
-    public T getMax() {
-        return maxHeap.get(0).element;
+
+    public int heapSize() {
+        return maxHeap.size();
     }
 
 }

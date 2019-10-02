@@ -31,4 +31,5 @@ public class Project {
     public int getBudget() {
         return budget;
     }
+
 }

@@ -40,6 +40,10 @@ public class Job implements Comparable<Job> {
         return project;
     }
 
+    String getProjectName() {
+        return project.getName();
+    }
+
     public int getRuntime() {
         return runtime;
     }
@@ -50,5 +54,29 @@ public class Job implements Comparable<Job> {
 
     public void setCompleteTime(int completeTime) {
         this.completeTime = completeTime;
+    }
+
+    @Override
+    public String toString() {
+        if (completeTime == 0) {
+
+            return "Job{" +
+                    "user='" + user.getName() + '\'' +
+                    ", project='" + project.getName() + '\'' +
+                    ", jobstatus=REQUESTED" +
+                    ", execution_time=" + runtime +
+                    ", end_time=null" +
+                    ", name='" + name + '\'' +
+                    '}';
+        }
+        else {
+            return "Job{" +
+                    "user='" + user.getName() + '\'' +
+                    ", project='" + project.getName() + '\'' +
+                    ", jobstatus=COMPLETED" +
+                    ", execution_time=" + runtime +
+                    ", end_time=" + completeTime +
+                    ", name='" + name + '\'' +
+                    '}';        }
     }
 }
