@@ -1,7 +1,6 @@
 package ProjectManagement;
 
 
-
 public class Job implements Comparable<Job> {
 
     private String name;
@@ -38,10 +37,6 @@ public class Job implements Comparable<Job> {
 
     Project getProject() {
         return project;
-    }
-
-    String getProjectName() {
-        return project.getName();
     }
 
     public int getRuntime() {

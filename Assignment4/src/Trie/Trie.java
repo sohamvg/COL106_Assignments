@@ -248,6 +248,8 @@ public class Trie<T> implements TrieInterface {
 
     @Override
     public void print() {
+        System.out.println("-------------");
+        System.out.println("Printing Trie");
         int level = 1;
         isPrintableLevel = true;
         while (isPrintableLevel) {
@@ -255,5 +257,6 @@ public class Trie<T> implements TrieInterface {
             level++;
         }
         System.out.println("Level " + (level-1) + ": ");
+        System.out.println("-------------");
     }
 }

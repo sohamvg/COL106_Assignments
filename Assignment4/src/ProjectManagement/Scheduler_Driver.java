@@ -190,7 +190,7 @@ public class Scheduler_Driver extends Thread implements SchedulerInterface {
     public void handle_query(String key) {
         System.out.println("Querying");
         RedBlackNode searchJob = allJobs.search(key);
-        if (searchJob != null && searchJob.getValue() != null) {
+        if (searchJob.getValues() != null) {
             Job job = (Job) searchJob.getValue();
 
             if (job.isFinished()) {

@@ -18,11 +18,14 @@ MATCHED:
 Matching: di
 NOT FOUND
 Deleting: Dishant Goyal
+DELETED
 Searching: Dishant Goyal
 NOT FOUND
 Matching: SK
 NOT FOUND
 Level 2: a,h,h,i,k
+-------------
+Printing Trie
 Level 1: B,C,D,E,F
 Level 2: a,h,h,i,k
 Level 3: a,a,l,r,s,t
@@ -39,4 +42,6 @@ Level 13: a,h,r,r,t
 Level 14: r
 Level 15: a
 Level 16: 
+-------------
 Deleting: Dishant Goyal
+ERROR DELETING

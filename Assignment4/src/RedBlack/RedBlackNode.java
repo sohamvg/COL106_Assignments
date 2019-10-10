@@ -44,24 +44,46 @@ public class RedBlackNode<T extends Comparable, E> implements RBNodeInterface<E>
     }
 
     boolean isRed() {
-        return this.color == ColorValue.RED;
+//        return this.color == ColorValue.RED;
+        return this.color.toString().equals(ColorValue.RED.toString());
     }
 
-    public boolean isBlack() {
-        return this.color == ColorValue.RED;
+    boolean isBlack() {
+        return this.color.toString().equals(ColorValue.BLACK.toString());
     }
 
-    RedBlackNode<T, E> getUncle() {
+//    RedBlackNode<T, E> getUncle() {
+//        if (this.parent == null || this.parent.parent == null) {
+//            return null;
+//        }
+//        if (this.parent.parent.left.equals(this.parent)) {
+//            return this.parent.parent.right;
+//        }
+//        else if (this.parent.parent.right == )
+//    }
+
+    RedBlackNode<T, E> getSibling() {
         if (this.parent == null) {
             return null;
         }
-        if (this.parent.left == this) {
+        else if (this.parent.left == this) {
             return this.parent.right;
         }
+
+
         else return this.parent.left;
+
+    }
+
+    public void setValue(List<E> value) {
+        this.value = value;
     }
 
     boolean isRoot() {
         return this.parent == null;
+    }
+
+    public ColorValue getColor() {
+        return color;
     }
 }
