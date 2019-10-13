@@ -223,12 +223,20 @@ public class Scheduler_Driver extends Thread implements SchedulerInterface {
 
 //            System.out.println(job + "   " + globalTime + " " + job.arrival_time() + " " + globalArrivalTime + " " + job.getPreciseArrivalTime() + " " + jobWaitTime);
             if (jobWaitTime >= waittime) {
-
                 job.setPriority(MAX_PRIORITY);
                 jobMaxHeap.moveUp(i);
             }
 
             i+=1;
+        }
+
+        for (Job job : notReadyJobs) {
+            int jobWaitTime = globalTime - job.arrival_time() - 10; // TODO check
+
+//            System.out.println(job + "   " + globalTime + " " + job.arrival_time() + " " + globalArrivalTime + " " + job.getPreciseArrivalTime() + " " + jobWaitTime);
+            if (jobWaitTime >= waittime) {
+                job.setPriority(MAX_PRIORITY);
+            }
         }
 
 
@@ -253,9 +261,16 @@ public class Scheduler_Driver extends Thread implements SchedulerInterface {
         int priority = Integer.parseInt(s);
         ArrayList<JobReport_> res = new ArrayList<>();
 
-        for (Job unfinishedJob : notReadyJobs) {
-            if (unfinishedJob.getPriority() >= priority) {
-                res.add(unfinishedJob);
+        for (Job notReadyJob : notReadyJobs) {
+            if (notReadyJob.getPriority() >= priority) {
+                res.add(notReadyJob);
+            }
+        }
+
+        for (MaxHeap.Node<Job> jobNode : jobMaxHeap.getMaxHeap()) {
+            Job notTriedJob = jobNode.getElement();
+            if (notTriedJob.getPriority() >= priority) {
+                res.add(notTriedJob);
             }
         }
         return res;
