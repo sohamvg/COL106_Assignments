@@ -18,13 +18,14 @@ public class Scheduler_Driver extends Thread implements SchedulerInterface {
     private static Trie<User> userTrie = new Trie<User>();
     private static Trie<Job> jobTrie = new Trie<Job>();
 
-    private static MaxHeap<User> userMaxHeap = new MaxHeap<>();
-    private static MaxHeap<Job> jobMaxHeap = new MaxHeap<>(); // stores all untried jobs
+//    private static MaxHeap<User> userMaxHeap = new MaxHeap<>(); // increases flush complexity
+    private static MaxHeap<Job> jobMaxHeap = new MaxHeap<>(); // stores all untried jobs = total - ( completed + notReadyJobs )
     private static MaxHeap<Job> unfinishedJobHeap = new MaxHeap<>();
 
+    private static ArrayList<User> userArrayList = new ArrayList<>();
     private static ArrayList<Job> finishedJobs = new ArrayList<>();
-    private static ArrayList<Job> notReadyJobs = new ArrayList<>(); // jobs which were tried but could not complete due to budget not sufficient
-    private static ArrayList<MaxHeap.Node<Job>> flushedJobs = new ArrayList<>();
+    private static ArrayList<Job> notReadyJobs = new ArrayList<>(); // jobs which were tried but have insufficient budget
+//    private static ArrayList<MaxHeap.Node<Job>> flushedJobs = new ArrayList<>();
 
     public static void main(String[] args) throws IOException {
 
@@ -99,9 +100,9 @@ public class Scheduler_Driver extends Thread implements SchedulerInterface {
                         System.out.println("Flush query");
                         System.out.println("Time elapsed (ns): " + (qend_time - qstart_time));
 
-                        for (MaxHeap.Node<Job> j : flushedJobs) {
-                            System.out.println(j.getElement());
-                        }
+//                        for (MaxHeap.Node<Job> j : flushedJobs) {
+//                            System.out.println(j.getElement());
+//                        }
 
                         break;
                     default:
@@ -121,6 +122,7 @@ public class Scheduler_Driver extends Thread implements SchedulerInterface {
 
         }
     }
+
 
     @Override
     public ArrayList<JobReport_> timed_report(String[] cmd) {
@@ -178,35 +180,43 @@ public class Scheduler_Driver extends Thread implements SchedulerInterface {
         return res;
     }
 
+
     @Override
     public ArrayList<UserReport_> timed_top_consumer(int top) {
         ArrayList<UserReport_> topUsers = new ArrayList<>();
-//        Queue<User> temp = new LinkedList<>();
-
-        while (top != 0) {
-            User user = userMaxHeap.extractMax();
-            topUsers.add(user);
-//            temp.add(user);
-            top=top-1;
-        }
-
-//        while (temp.peek() != null){
-//            User user = temp.remove();
-//            userMaxHeap.insert(user);
+//
+//        // Method 1
+//        while (top != 0) {
+//            User user = userMaxHeap.extractMax();
+//            topUsers.add(user);
+////            temp.add(user);
+//            top=top-1;
+//        }
+//
+//
+//        for (UserReport_ topUser : topUsers) { // java foreach preserves order i.e. index 0 (highest consumed) will be inserted first into userMaxHeap
+//            if (topUser == null) { // TODO handle users < top
+//                break;
+//            }
+////            System.out.println(topUser.user() + " " + topUser.consumed());
+//            userMaxHeap.insert((User) topUser);
 //        }
 
-        for (UserReport_ topUser : topUsers) { // java foreach preserves order i.e. index 0 (highest consumed) will be inserted first into userMaxHeap
-            if (topUser == null) { // TODO handle users < top
+        // Method 2
+        userArrayList.sort(null); // O((# user) * log(# user)) // TODO use heapSelect etc.
+
+        int size = userArrayList.size();
+        for (int i = 0; i < top; i++) {
+            if (i > size-1) {
                 break;
             }
-//            System.out.println(topUser.user() + " " + topUser.consumed());
-            userMaxHeap.insert((User) topUser);
+            topUsers.add(userArrayList.get(i));
         }
 
         return topUsers;
     }
 
-    @SuppressWarnings("unchecked")
+
     @Override
     public void timed_flush(int waittime) {
 //        System.out.println("#########################");
@@ -219,10 +229,10 @@ public class Scheduler_Driver extends Thread implements SchedulerInterface {
         while (jobIter.hasNext()) {
             MaxHeap.Node<Job> j = jobIter.next();
             Job job = j.getElement();
-            int jobWaitTime = globalTime - job.arrival_time() - 10; // TODO check
+            int jobWaitTime = globalTime - job.arrival_time();
 
 //            System.out.println(job + "   " + globalTime + " " + job.arrival_time() + " " + globalArrivalTime + " " + job.getPreciseArrivalTime() + " " + jobWaitTime);
-            if (jobWaitTime >= waittime) {
+            if (jobWaitTime >= waittime && job.getRuntime() <= job.getProject().getBudget()) {
                 job.setPriority(MAX_PRIORITY);
                 jobMaxHeap.moveUp(i);
             }
@@ -230,28 +240,31 @@ public class Scheduler_Driver extends Thread implements SchedulerInterface {
             i+=1;
         }
 
-        for (Job job : notReadyJobs) {
-            int jobWaitTime = globalTime - job.arrival_time() - 10; // TODO check
+        Job job = jobMaxHeap.extractMax();
 
-//            System.out.println(job + "   " + globalTime + " " + job.arrival_time() + " " + globalArrivalTime + " " + job.getPreciseArrivalTime() + " " + jobWaitTime);
-            if (jobWaitTime >= waittime) {
-                job.setPriority(MAX_PRIORITY);
-            }
+        while (job.getPriority() == MAX_PRIORITY) {
+
+            System.out.println(job);
+            job.setPriority(job.getProject().getPriority());
+            execute_a_job(job);
+            job = jobMaxHeap.extractMax();
         }
 
+        jobMaxHeap.insert(job);
 
         // sort...
         /*
         Method 1
         O((# untried jobs) + (# untried jobs)*log(# untried jobs))
          */
-        flushedJobs = (ArrayList<MaxHeap.Node<Job>>)jobMaxHeap.getMaxHeap().clone(); // O(# untried jobs)
-        flushedJobs.sort(new JobArrivalComparator()); // O((# untried jobs) * log(# untried jobs))
+//        flushedJobs = (ArrayList<MaxHeap.Node<Job>>)jobMaxHeap.getMaxHeap().clone(); // O(# untried jobs)
+//        flushedJobs.sort(new JobArrivalComparator()); // O((# untried jobs) * log(# untried jobs))
 
         /*
         Method 2
         O(# total jobs)
          */
+
 //        System.out.println("#########################");
 
     }
@@ -276,31 +289,33 @@ public class Scheduler_Driver extends Thread implements SchedulerInterface {
         return res;
     }
 
+
     private ArrayList<JobReport_> handle_new_projectuser(String[] cmd) {
 
         int t1 = Integer.parseInt(cmd[3]);
         int t2 = Integer.parseInt(cmd[4]);
         ArrayList<JobReport_> res = new ArrayList<>();
 
-        TrieNode searchProject = projectTrie.search(cmd[1]); // O(project name length)
-        if (searchProject != null) {
-            Project project = (Project) searchProject.getValue();
-
-            TrieNode searchUser = project.getUserTrie().search(cmd[2]);
+        TrieNode searchUser = userTrie.search(cmd[2]); // O(user name length)
             if (searchUser != null) {
                 User user = (User) searchUser.getValue();
 
                 for (Job job : user.getJobs()) { // O(no. of jobs of that user)
-                    if (job.arrival_time() >= t1 && job.arrival_time() <= t2) {
+
+                    if (job.arrival_time() > t2) {
+                        break;
+                    }
+                    if (job.getProject().getName().equals(cmd[1]) && job.arrival_time() >= t1 && job.arrival_time() <= t2) { // TODO binary search for t1
                         res.add(job);
                     }
                 }
                 res.sort(new JobCompletionComparator()); // TODO check
             }
-        }
+            else {System.out.println("No such user exists." + cmd[2]);}
 
         return res;
     }
+
 
     private ArrayList<JobReport_> handle_new_user(String[] cmd) {
         int t1 = Integer.parseInt(cmd[2]);
@@ -312,14 +327,21 @@ public class Scheduler_Driver extends Thread implements SchedulerInterface {
             User user = (User) searchUser.getValue();
 
             for (Job job : user.getJobs()) { // O(no. of jobs of that user)
+
+                if (job.arrival_time() > t2) {
+                    break;
+                }
+
                 if (job.arrival_time() >= t1 && job.arrival_time() <= t2) {
                     res.add(job);
                 }
             }
         }
+        else {System.out.println("No such user exists." + cmd[1]);}
 
         return res;
     }
+
 
     private ArrayList<JobReport_> handle_new_project(String[] cmd) {
 
@@ -332,19 +354,51 @@ public class Scheduler_Driver extends Thread implements SchedulerInterface {
             Project project = (Project) searchProject.getValue();
 
             for (Job job : project.getJobs()) { // O(no. of jobs of that project)
+
+                if (job.arrival_time() > t2) {
+                    break;
+                }
                 if (job.arrival_time() >= t1 && job.arrival_time() <= t2) {
                     res.add(job);
                 }
             }
         }
+        else {System.out.println("No such project exists." + cmd[1]);}
 
         return res;
     }
 
 
     public void schedule() {
-            execute_a_job();
+
+        System.out.println("Running code");
+        System.out.println("Remaining jobs: " + jobMaxHeap.heapSize());
+
+        Job job = jobMaxHeap.extractMax();
+
+        while (job != null) {
+
+            assert job.getProject() != null;
+            Project project = job.getProject();
+
+
+            System.out.println("Executing: " + job.getName() + " from: " + project.getName());
+            if (project.getBudget() >= job.getRuntime()) {
+
+                execute_a_job(job);
+                System.out.println("Project: " + project.getName() + " budget remaining: " + project.getBudget());
+
+                break;
+            }
+            else {
+                System.out.println("Un-sufficient budget.");
+
+                notReadyJobs.add(job); // O(1) -> O(log (no. of projects with unfinished jobs)) + O(1)
+                job = jobMaxHeap.extractMax();
+            }
+        }
     }
+
 
     public void run_to_completion() {
         while (jobMaxHeap.heapSize() > 0) {
@@ -353,14 +407,16 @@ public class Scheduler_Driver extends Thread implements SchedulerInterface {
         }
     }
 
+
     public void print_stats() {
         System.out.println("--------------STATS---------------");
         System.out.println("Total jobs done: " + finishedJobs.size());
         for (Job finishedJob : finishedJobs) {
             System.out.println(finishedJob);
+//            System.out.println(finishedJob + " " + finishedJob.getPreciseArrivalTime());
         }
         System.out.println("------------------------");
-        System.out.println("Unfinished jobs: ");
+        System.out.println("Unfinished jobs: "); // print_stats is called after every job is tried, so unfinished jobs = not ready jobs
         for (Job unfinishedJob : notReadyJobs) { // TODO buildHeap
             unfinishedJobHeap.insert(unfinishedJob);
         }
@@ -370,6 +426,7 @@ public class Scheduler_Driver extends Thread implements SchedulerInterface {
         System.out.println("Total unfinished jobs: " + notReadyJobs.size());
         System.out.println("--------------STATS DONE---------------");
     }
+
 
     public void handle_add(String[] cmd) {
         System.out.println("ADDING Budget");
@@ -392,10 +449,12 @@ public class Scheduler_Driver extends Thread implements SchedulerInterface {
 
     }
 
+
     public void handle_empty_line() {
        schedule();
         System.out.println("Execution cycle completed");
     }
+
 
     public void handle_query(String key) {
         System.out.println("Querying");
@@ -415,8 +474,10 @@ public class Scheduler_Driver extends Thread implements SchedulerInterface {
         System.out.println("Creating user");
         User user = new User(name,0,0);
         userTrie.insert(user.getName(), user);
-        userMaxHeap.insert(user);
+//        userMaxHeap.insert(user);
+        userArrayList.add(user);
     }
+
 
     public void handle_job(String[] cmd) {
         System.out.println("Creating job");
@@ -430,11 +491,11 @@ public class Scheduler_Driver extends Thread implements SchedulerInterface {
             if (searchUser != null) {
 
                 User user = (User) searchUser.getValue();
-                globalArrivalTime+=1;
-                Job job = new Job(name,project,project.getPriority(),user,runtime,globalTime,globalArrivalTime);
 
+                Job job = new Job(name,project,project.getPriority(),user,runtime,globalTime,globalArrivalTime);
+                globalArrivalTime+=1;
                 jobMaxHeap.insert(job);
-                jobTrie.insert(name,job);
+                jobTrie.insert(name,job); // TODO check time
                 project.addJob(job);
                 user.addJob(job);
             }
@@ -442,6 +503,7 @@ public class Scheduler_Driver extends Thread implements SchedulerInterface {
         }
         else {System.out.println("No such project exists. " + cmd[2]);}
     }
+
 
     public void handle_project(String[] cmd) {
         System.out.println("Creating project");
@@ -453,37 +515,84 @@ public class Scheduler_Driver extends Thread implements SchedulerInterface {
 
     }
 
-    private void execute_a_job() {
-        System.out.println("Running code");
-        System.out.println("\tRemaining jobs: " + jobMaxHeap.heapSize());
 
-        Job job = jobMaxHeap.extractMax();
+    private void execute_a_job(Job job) {
 
-        while (job != null) {
+        assert job.getProject() != null;
+        Project project = job.getProject();
+        int jobRunTime = job.getRuntime();
 
-            assert job.getProject() != null;
-            Project project = job.getProject();
-            int jobRunTime = job.getRuntime();
+        job.setFinished();
+        job.getUser().addConsumedBudget(jobRunTime);
+        job.getUser().setLatestJobTime(jobRunTime);
+        finishedJobs.add(job);
+        globalTime+=jobRunTime;
+        job.setCompleteTime(globalTime);
+        project.decreaseBudget(jobRunTime);
+    }
 
-            System.out.println("\tExecuting: " + job.getName() + " from: " + project.getName());
-            if (project.getBudget() >= jobRunTime) {
+    @Override
+    public void timed_handle_user(String name) {
+        User user = new User(name,0,0);
+        userTrie.insert(user.getName(), user);
+//        userMaxHeap.insert(user);
+        userArrayList.add(user);
+    }
 
-                job.setFinished();
-                job.getUser().addConsumedBudget(jobRunTime);
-                job.getUser().setLatestJobTime(jobRunTime);
-                finishedJobs.add(job);
-                globalTime+=jobRunTime;
-                job.setCompleteTime(globalTime);
-                project.decreaseBudget(jobRunTime);
-                System.out.println("\tProject: " + project.getName() + " budget remaining: " + project.getBudget());
+    @Override
+    public void timed_handle_job(String[] cmd) {
+        String name = cmd[1];
+        int runtime = Integer.parseInt(cmd[4]);
+        TrieNode searchProject = projectTrie.search(cmd[2]);
+        if (searchProject != null) {
+            Project project = (Project) searchProject.getValue();
 
-                break;
+            TrieNode searchUser = userTrie.search(cmd[3]);
+            if (searchUser != null) {
+
+                User user = (User) searchUser.getValue();
+
+                Job job = new Job(name,project,project.getPriority(),user,runtime,globalTime,globalArrivalTime);
+                globalArrivalTime+=1;
+                jobMaxHeap.insert(job);
+                jobTrie.insert(name,job); // TODO check time
+                project.addJob(job);
+                user.addJob(job);
             }
-            else {
-                System.out.println("\tUn-sufficient budget.");
+        }
+    }
 
-                notReadyJobs.add(job); // O(1) -> O(log (no. of projects with unfinished jobs)) + O(1)
-                job = jobMaxHeap.extractMax();
+    @Override
+    public void timed_handle_project(String[] cmd) {
+        String name = cmd[1];
+        int priority = Integer.parseInt(cmd[2]);
+        int budget = Integer.parseInt(cmd[3]);
+        Project project = new Project(name, priority, budget);
+        projectTrie.insert(name, project);
+    }
+
+    @Override
+    public void timed_run_to_completion() {
+        while (jobMaxHeap.heapSize() > 0) {
+
+            Job job = jobMaxHeap.extractMax();
+
+            while (job != null) {
+
+                assert job.getProject() != null;
+                Project project = job.getProject();
+
+                if (project.getBudget() >= job.getRuntime()) {
+
+                    execute_a_job(job);
+
+                    break;
+                }
+                else {
+
+                    notReadyJobs.add(job); // O(1) -> O(log (no. of projects with unfinished jobs)) + O(1)
+                    job = jobMaxHeap.extractMax();
+                }
             }
         }
     }

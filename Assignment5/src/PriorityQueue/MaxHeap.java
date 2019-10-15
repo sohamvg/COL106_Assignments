@@ -54,6 +54,11 @@ public class MaxHeap<T extends Comparable<T>> implements PriorityQueueInterface<
         maxHeap.set(j, temp);
     }
 
+    /**
+     * @param i index of element to be moved up
+     *          O(log i)
+     *          worst case = O(log n), n is no. of elements in heap
+     */
     public void moveUp(int i) {
         while (i > 0) {
             int j = parent(i);

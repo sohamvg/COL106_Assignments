@@ -1,7 +1,5 @@
 package ProjectManagement;
 
-import Trie.Trie;
-
 import java.util.ArrayList;
 
 public class Project {
@@ -9,7 +7,6 @@ public class Project {
     private String name;
     private int priority, budget;
     private ArrayList<Job> jobs;
-    private Trie<User> userTrie = new Trie<User>();
 
     public Project(String name, int priority, int budget) {
         this.name = name;
@@ -28,10 +25,6 @@ public class Project {
 
     public ArrayList<Job> getJobs() {
         return jobs;
-    }
-
-    Trie<User> getUserTrie() {
-        return userTrie;
     }
 
     void decreaseBudget(int amount) {

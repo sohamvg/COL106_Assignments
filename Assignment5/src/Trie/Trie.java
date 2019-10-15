@@ -183,7 +183,7 @@ public class Trie<T> implements TrieInterface {
             isPrintableLevel = false;
             return;
         }
-        a.sort(null); // TODO check
+        a.sort(null); // checked : sorts in natural ordering by default if comparator is null
         System.out.print("Level " + level + ": ");
 
         for (int i=0; i<a.size()-1; i++) {
