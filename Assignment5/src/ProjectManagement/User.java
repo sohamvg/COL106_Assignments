@@ -40,7 +40,7 @@ public class User implements Comparable<User>, UserReport_ {
     public int compareTo(User user) {
         int consumedCompare = Integer.compare(this.consumedBudget, user.consumedBudget);
         if (consumedCompare == 0) {
-            return Integer.compare(this.latestJobTime, user.latestJobTime);
+            return Integer.compare(user.latestJobTime, this.latestJobTime);
         }
         return consumedCompare;
     }
@@ -53,5 +53,9 @@ public class User implements Comparable<User>, UserReport_ {
     @Override
     public int consumed() {
         return consumedBudget;
+    }
+
+    int getLatestJobTime() {
+        return latestJobTime;
     }
 }

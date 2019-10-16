@@ -7,7 +7,7 @@ public class RBTree<T extends Comparable<T>, E> implements RBTreeInterface<T, E>
 
     private final RedBlackNode<T, E> nullLeaf = new RedBlackNode<>(null,ColorValue.BLACK,null,null,null,null);
 
-    public RBTree() {
+    RBTree() {
         this.root = null;
     }
 
@@ -78,7 +78,7 @@ public class RBTree<T extends Comparable<T>, E> implements RBTreeInterface<T, E>
 
     }
 
-    private void fixProblem(RedBlackNode<T,E> node) {
+    private void fixProblem(RedBlackNode<T,E> node) { //TODO iterative
 
         if (node.isRoot()) { // node is root
 
@@ -222,7 +222,7 @@ public class RBTree<T extends Comparable<T>, E> implements RBTreeInterface<T, E>
     @Override
     public RedBlackNode<T, E> search(T key) {
         return searcher(root, key);
-    }
+    } //TODO iterative
 
     private RedBlackNode<T, E> searcher(RedBlackNode<T, E> root, T key) {
 

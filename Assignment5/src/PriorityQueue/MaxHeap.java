@@ -1,7 +1,6 @@
 package PriorityQueue;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 
 public class MaxHeap<T extends Comparable<T>> implements PriorityQueueInterface<T> {
 
@@ -59,7 +58,7 @@ public class MaxHeap<T extends Comparable<T>> implements PriorityQueueInterface<
      *          O(log i)
      *          worst case = O(log n), n is no. of elements in heap
      */
-    public void moveUp(int i) {
+    private void moveUp(int i) {
         while (i > 0) {
             int j = parent(i);
             if (maxHeap.get(i).compareTo(maxHeap.get(j)) <= 0) { // if both element have same priority then break
@@ -72,7 +71,6 @@ public class MaxHeap<T extends Comparable<T>> implements PriorityQueueInterface<
         }
     }
 
-
     /**
      * Time complexity of inserting a new element is O(log n), n is number of nodes initially present in the heap <br>
      * Time complexity of inserting 'm' elements in initially empty heap is O(m*log m) <br>
@@ -82,7 +80,7 @@ public class MaxHeap<T extends Comparable<T>> implements PriorityQueueInterface<
     public void insert(T element) {
         heapTime+=1;
         Node<T> heapElement = new Node<>(element, heapTime);
-        maxHeap.add(heapElement);
+        maxHeap.add(heapElement); // could be at any of left or right of root
 
         moveUp(maxHeap.size()-1);
     }
@@ -151,12 +149,16 @@ public class MaxHeap<T extends Comparable<T>> implements PriorityQueueInterface<
         return maxHeap;
     }
 
+//    public T getMax() {
+//        return maxHeap.get(0).element;
+//    }
+
 
 ////////////////////// iterator /////////////////////////
-
-    public Iterator<Node<T>> heapIterator() {
-        return maxHeap.iterator();
-    }
+//
+//    public Iterator<Node<T>> heapIterator() {
+//        return maxHeap.iterator();
+//    }
 
 
 }

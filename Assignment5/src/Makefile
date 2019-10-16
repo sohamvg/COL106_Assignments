@@ -4,14 +4,15 @@ INPUT_FILE ?= INP
 EXPECTED_OUTPUT_FILE ?= EXPECTED_OUTPUT
 SCORE_FILE ?= score
 score=2
+DIFF_FLAGS = -i --strip-trailing-cr
 
 logtrieerror= (echo 'ERROR '; echo 'EXPECTED_OUTPUT:'; echo "--------------"; cat Trie/$(EXPECTED_OUTPUT_FILE); echo "==============" ;echo "Your OUTPUT"; echo "--------------"; cat Trie/tmp;)
 logrberror = (echo "ERROR"; echo "EXPECTED_OUTPUT:"; echo "--------------"; cat RedBlack/$(EXPECTED_OUTPUT_FILE); echo "==============" ;echo "Your OUTPUT:"; echo "--------------"; cat RedBlack/tmp;)
 logpqerror = (echo 'ERROR '; echo 'EXPECTED_OUTPUT:'; echo "--------------"; cat PriorityQueue/$(EXPECTED_OUTPUT_FILE); echo "=============="; echo "Your OUTPUT:"; echo "--------------"; cat PriorityQueue/tmp; )
-logpmerror = (echo 'ERROR '; echo 'EXPECTED_OUTPUT:'; echo "--------------"; cat ProjectManagement/$(EXPECTED_OUTPUT_FILE); echo "=============="; echo "Your OUTPUT:"; echo "--------------"; cat ProjectManagement/tmp; )
+logpmerror = (echo 'ERROR '; echo 'EXPECTED_OUTPUT:'; echo "--------------"; diff ProjectManagement/$(EXPECTED_OUTPUT_FILE) cat ProjectManagement/tmp; )
 
 all: triebuild triecheck rbtreebuild rbtreecheck pqbuild  pqcheck pmbuild pmcheck clean
-testcase: pqtestcase rbtestcase trietestcase pmtestcase
+testcase: pqtestcase rbtestcase trietestcase1 pmtestcase
 build: triebuild rbtreebuild pqbuild pmbuild
 check: triecheck pqcheck rbtreecheck pmcheck
 trie: triebuild triecheck trieclean
@@ -31,7 +32,7 @@ triecheck: triebuild
 	@echo "**********"
 	@$(JAVA) Trie.TrieDriverCode Trie/$(INPUT_FILE) >Trie/tmp
 	@cd Trie &&	sed -i 's/[^[:print:]]//g' tmp &&	sed -i 's/[^[:print:]]//g' $(EXPECTED_OUTPUT_FILE)
-	@diff -i Trie/tmp Trie/$(EXPECTED_OUTPUT_FILE) && echo 'TRIE SUCCESS'  || $(call logtrieerror)
+	@diff $(DIFF_FLAGS) Trie/tmp Trie/$(EXPECTED_OUTPUT_FILE) && echo 'TRIE SUCCESS'  || $(call logtrieerror)
 trieclean:
 	-@rm Trie/tmp -f
 	-@rm Trie/*.class -f
@@ -47,7 +48,7 @@ rbtreecheck: rbtreebuild
 	@echo "**********"
 	@$(JAVA) RedBlack.RedBlackDriverCode RedBlack/$(INPUT_FILE) >RedBlack/tmp
 	@cd RedBlack && sed -i 's/[^[:print:]]//g' tmp && sed -i 's/[^[:print:]]//g' $(EXPECTED_OUTPUT_FILE)
-	@diff -i RedBlack/tmp RedBlack/$(EXPECTED_OUTPUT_FILE) && echo 'RBTREE SUCCESS' || $(call logrberror)
+	@diff $(DIFF_FLAGS) RedBlack/tmp RedBlack/$(EXPECTED_OUTPUT_FILE) && echo 'RBTREE SUCCESS' || $(call logrberror)
 rbtreeclean:
 	-@rm RedBlack/tmp -f 
 	-@rm RedBlack/*.class -f
@@ -63,7 +64,7 @@ pqcheck: pqbuild
 	@echo "**********"
 	@$(JAVA) PriorityQueue.PriorityQueueDriverCode PriorityQueue/$(INPUT_FILE) >PriorityQueue/tmp
 	@cd PriorityQueue  && sed -i 's/[^[:print:]]//g' tmp && sed -i 's/[^[:print:]]//g' $(EXPECTED_OUTPUT_FILE)
-	@diff -i PriorityQueue/tmp PriorityQueue/$(EXPECTED_OUTPUT_FILE) && echo 'PQ SUCCESS' || $(call logpqerror)
+	@diff $(DIFF_FLAGS) PriorityQueue/tmp PriorityQueue/$(EXPECTED_OUTPUT_FILE) && echo 'PQ SUCCESS' || $(call logpqerror)
 pqclean:
 	-@rm PriorityQueue/tmp -f
 	-@rm PriorityQueue/*.class -f
@@ -77,12 +78,32 @@ pmcheck: pmbuild
 	@echo "\n**********"
 	@echo "Checking ProjectManagement"
 	@echo "**********"
-	@$(JAVA) ProjectManagement.Scheduler_Driver ProjectManagement/$(INPUT_FILE) >ProjectManagement/tmp
-	@cd ProjectManagement && sed -i 's/[^[:print:]]//g' tmp && sed -i 's/[^[:print:]]//g' $(EXPECTED_OUTPUT_FILE)
-	@diff -i ProjectManagement/tmp ProjectManagement/$(EXPECTED_OUTPUT_FILE) && echo 'PM SUCCESS' || $(call logpmerror)
+	@$(JAVA) ProjectManagement.Scheduler_Grader ProjectManagement/$(INPUT_FILE)
+# 	@cd ProjectManagement && sed -i 's/[^[:print:]]//g' tmp && sed -i 's/[^[:print:]]//g' $(EXPECTED_OUTPUT_FILE)
+# 	@sed -i '/Time elapsed/d' ./ProjectManagement/tmp
+# 	@sed -i '/Time elapsed/d' ./ProjectManagement/$(EXPECTED_OUTPUT_FILE)
+# 	@diff $(DIFF_FLAGS) ProjectManagement/tmp ProjectManagement/$(EXPECTED_OUTPUT_FILE) && echo 'PM SUCCESS' || $(call logpmerror)
 pmclean:
 	-@rm ProjectManagement/tmp -f
 	-@rm ProjectManagement/*.class -f
+
+# pmbuild:
+# 	@echo "\n**********"
+# 	@echo "Building ProjectManagement"
+# 	@echo "**********"
+# 	@$(JAVAC) -encoding ISO-8859-1 ProjectManagement/*.java
+# pmcheck: pmbuild
+# 	@echo "\n**********"
+# 	@echo "Checking ProjectManagement"
+# 	@echo "**********"
+# 	@$(JAVA) ProjectManagement.Scheduler_Driver ProjectManagement/$(INPUT_FILE) >ProjectManagement/tmp
+# 	@cd ProjectManagement && sed -i 's/[^[:print:]]//g' tmp && sed -i 's/[^[:print:]]//g' $(EXPECTED_OUTPUT_FILE)
+# 	@sed -i '/Time elapsed/d' ./ProjectManagement/tmp
+# 	@sed -i '/Time elapsed/d' ./ProjectManagement/$(EXPECTED_OUTPUT_FILE)
+# 	@diff $(DIFF_FLAGS) ProjectManagement/tmp ProjectManagement/$(EXPECTED_OUTPUT_FILE) && echo 'PM SUCCESS' || $(call logpmerror)
+# pmclean:
+# 	-@rm ProjectManagement/tmp -f
+# 	-@rm ProjectManagement/*.class -f
 
 
 clean: trieclean pqclean rbtreeclean pmclean

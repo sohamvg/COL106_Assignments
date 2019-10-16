@@ -1,5 +1,6 @@
 package ProjectManagement;
 
+import PriorityQueue.BuildHeap;
 import PriorityQueue.MaxHeap;
 import Trie.Trie;
 import Trie.TrieNode;
@@ -9,6 +10,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Iterator;
 
+// TODO remove final print statements
 public class Scheduler_Driver extends Thread implements SchedulerInterface {
 
     private static int globalTime = 0;
@@ -88,10 +90,15 @@ public class Scheduler_Driver extends Thread implements SchedulerInterface {
                         break;
                     case "NEW_TOP":
                         qstart_time = System.nanoTime();
-                        timed_top_consumer(Integer.parseInt(cmd[1]));
+                        ArrayList<UserReport_> res = timed_top_consumer(Integer.parseInt(cmd[1]));
                         qend_time = System.nanoTime();
                         System.out.println("Top query");
                         System.out.println("Time elapsed (ns): " + (qend_time - qstart_time));
+
+                        for (UserReport_ j : res) {
+                            System.out.println(j.user() + " " + j.consumed() + " " + ((User) j).getLatestJobTime());
+                        }
+
                         break;
                     case "NEW_FLUSH":
                         qstart_time = System.nanoTime();
@@ -136,10 +143,9 @@ public class Scheduler_Driver extends Thread implements SchedulerInterface {
                 System.out.println("Project query");
                 System.out.println("Time elapsed (ns): " + (qend_time - qstart_time));
 
-//                for (JobReport_ j : res) {
-//                    System.out.print(((Job) j).getName() + " " + ((Job) j).getProject().getPriority() + ", ");
-//                }
-//                System.out.println();
+                for (JobReport_ j : res) {
+                    System.out.println(j);
+                }
 
                 break;
             case "NEW_USER":
@@ -149,6 +155,10 @@ public class Scheduler_Driver extends Thread implements SchedulerInterface {
                 System.out.println("User query");
                 System.out.println("Time elapsed (ns): " + (qend_time - qstart_time));
 
+                for (JobReport_ j : res) {
+                    System.out.println(j);
+                }
+
                 break;
             case "NEW_PROJECTUSER":
                 qstart_time = System.nanoTime();
@@ -156,6 +166,11 @@ public class Scheduler_Driver extends Thread implements SchedulerInterface {
                 qend_time = System.nanoTime();
                 System.out.println("Project User query");
                 System.out.println("Time elapsed (ns): " + (qend_time - qstart_time));
+
+                for (JobReport_ j : res) {
+                    System.out.println(j.toString() + " " + j.completion_time());
+                }
+
                 break;
             case "NEW_PRIORITY":
                 qstart_time = System.nanoTime();
@@ -164,15 +179,9 @@ public class Scheduler_Driver extends Thread implements SchedulerInterface {
                 System.out.println("Priority query");
                 System.out.println("Time elapsed (ns): " + (qend_time - qstart_time));
 
-//                for (Job j : notReadyJobs) {
-//                    System.out.print(j.getName() + " " + j.getProject().getPriority() + ", ");
-//                }
-//                System.out.println();
-//
-//                for (JobReport_ j : res) {
-//                    System.out.print(((Job) j).getName() + " " + ((Job) j).getProject().getPriority() + ", ");
-//                }
-//                System.out.println();
+                for (JobReport_ j : res) {
+                    System.out.println(j);
+                }
 
                 break;
         }
@@ -184,33 +193,33 @@ public class Scheduler_Driver extends Thread implements SchedulerInterface {
     @Override
     public ArrayList<UserReport_> timed_top_consumer(int top) {
         ArrayList<UserReport_> topUsers = new ArrayList<>();
+
+//        userArrayList.sort(null); // O((# user) * log(# user)) // TODO check order
 //
-//        // Method 1
-//        while (top != 0) {
-//            User user = userMaxHeap.extractMax();
-//            topUsers.add(user);
-////            temp.add(user);
-//            top=top-1;
-//        }
+//        int size = userArrayList.size();
 //
-//
-//        for (UserReport_ topUser : topUsers) { // java foreach preserves order i.e. index 0 (highest consumed) will be inserted first into userMaxHeap
-//            if (topUser == null) { // TODO handle users < top
+//        for (int i = size-1; i > size-1-top; i--) {
+//            if (i == -1) {
 //                break;
 //            }
-////            System.out.println(topUser.user() + " " + topUser.consumed());
-//            userMaxHeap.insert((User) topUser);
+//            topUsers.add(userArrayList.get(i));
 //        }
 
-        // Method 2
-        userArrayList.sort(null); // O((# user) * log(# user)) // TODO use heapSelect etc.
+        BuildHeap<User> temp = new BuildHeap<>(); // TODO check
+        temp.buildHeap(userArrayList,userArrayList.size());
 
-        int size = userArrayList.size();
-        for (int i = 0; i < top; i++) {
-            if (i > size-1) {
+        while (top != 0) {
+
+            User user = temp.extractMax(userArrayList);
+
+            if (user == null) {
                 break;
             }
-            topUsers.add(userArrayList.get(i));
+
+            else {
+                topUsers.add(user);
+            }
+            top = top - 1;
         }
 
         return topUsers;
@@ -220,37 +229,28 @@ public class Scheduler_Driver extends Thread implements SchedulerInterface {
     @Override
     public void timed_flush(int waittime) {
 //        System.out.println("#########################");
-
-        final int MAX_PRIORITY = 9999;
         // flush...
-        Iterator<MaxHeap.Node<Job>> jobIter = jobMaxHeap.heapIterator();
-        int i = 0;
-
-        while (jobIter.hasNext()) {
-            MaxHeap.Node<Job> j = jobIter.next();
-            Job job = j.getElement();
-            int jobWaitTime = globalTime - job.arrival_time();
-
-//            System.out.println(job + "   " + globalTime + " " + job.arrival_time() + " " + globalArrivalTime + " " + job.getPreciseArrivalTime() + " " + jobWaitTime);
+        int timeAtFlush = globalTime;
+        ArrayList<Job> temp = new ArrayList<>();
+        Job job = jobMaxHeap.extractMax();
+        while (job != null) {
+            int jobWaitTime = timeAtFlush - job.arrival_time();
             if (jobWaitTime >= waittime && job.getRuntime() <= job.getProject().getBudget()) {
-                job.setPriority(MAX_PRIORITY);
-                jobMaxHeap.moveUp(i);
+                System.out.println(job);
+                execute_a_job(job);
+                System.out.println(job.getProject().getBudget() + " " + job + " ddddddddd");
+            }
+            else {
+                temp.add(job);
             }
 
-            i+=1;
-        }
-
-        Job job = jobMaxHeap.extractMax();
-
-        while (job.getPriority() == MAX_PRIORITY) {
-
-            System.out.println(job);
-            job.setPriority(job.getProject().getPriority());
-            execute_a_job(job);
             job = jobMaxHeap.extractMax();
         }
 
-        jobMaxHeap.insert(job);
+        // TODO: if jobMaxHeap is empty then buildHeap
+        for (Job j : temp) {
+            jobMaxHeap.insert(j);
+        }
 
         // sort...
         /*
@@ -286,6 +286,7 @@ public class Scheduler_Driver extends Thread implements SchedulerInterface {
                 res.add(notTriedJob);
             }
         }
+        // TODO sort
         return res;
     }
 
@@ -298,15 +299,19 @@ public class Scheduler_Driver extends Thread implements SchedulerInterface {
 
         TrieNode searchUser = userTrie.search(cmd[2]); // O(user name length)
             if (searchUser != null) {
-                User user = (User) searchUser.getValue();
 
-                for (Job job : user.getJobs()) { // O(no. of jobs of that user)
+                ArrayList<Job> userJobs = ((User) searchUser.getValue()).getJobs();
 
-                    if (job.arrival_time() > t2) {
-                        break;
-                    }
-                    if (job.getProject().getName().equals(cmd[1]) && job.arrival_time() >= t1 && job.arrival_time() <= t2) { // TODO binary search for t1
-                        res.add(job);
+                int bs = binarySearch(userJobs, t1);
+                if (bs != -1) {
+                    for (int i = bs; i < userJobs.size(); i++) {
+                        Job job = userJobs.get(i);
+                        if (job.arrival_time() > t2) {
+                            break;
+                        }
+                        if (job.getProject().getName().equals(cmd[1]) && job.arrival_time() >= t1 && job.arrival_time() <= t2) {
+                            res.add(job);
+                        }
                     }
                 }
                 res.sort(new JobCompletionComparator()); // TODO check
@@ -324,20 +329,27 @@ public class Scheduler_Driver extends Thread implements SchedulerInterface {
 
         TrieNode searchUser = userTrie.search(cmd[1]); // O(user name length)
         if (searchUser != null) {
-            User user = (User) searchUser.getValue();
+            ArrayList<Job> userJobs = ((User) searchUser.getValue()).getJobs();
 
-            for (Job job : user.getJobs()) { // O(no. of jobs of that user)
+            System.out.println("jjjjjjjjjjjjjjjjjjjjjjjjjj");
+            for (Job j : userJobs) {
+                System.out.println(j + " " + j.arrival_time());
+            }
 
-                if (job.arrival_time() > t2) {
-                    break;
-                }
-
-                if (job.arrival_time() >= t1 && job.arrival_time() <= t2) {
-                    res.add(job);
+            int bs = binarySearch(userJobs, t1);
+            if (bs != -1) {
+                for (int i = bs; i < userJobs.size(); i++) {
+                    Job job = userJobs.get(i);
+                    if (job.arrival_time() > t2) {
+                        break;
+                    }
+                    if (job.arrival_time() >= t1 && job.arrival_time() <= t2) {
+                        res.add(job);
+                    }
                 }
             }
         }
-        else {System.out.println("No such user exists." + cmd[1]);}
+//        else {System.out.println("No such user exists." + cmd[1]);}
 
         return res;
     }
@@ -351,19 +363,24 @@ public class Scheduler_Driver extends Thread implements SchedulerInterface {
 
         TrieNode searchProject = projectTrie.search(cmd[1]); // O(project name length)
         if (searchProject != null) {
-            Project project = (Project) searchProject.getValue();
+            ArrayList<Job> projectJobs = ((Project) searchProject.getValue()).getJobs();
 
-            for (Job job : project.getJobs()) { // O(no. of jobs of that project)
+            int bs = binarySearch(projectJobs, t1);
+            if (bs != -1) {
 
-                if (job.arrival_time() > t2) {
-                    break;
-                }
-                if (job.arrival_time() >= t1 && job.arrival_time() <= t2) {
-                    res.add(job);
+                for (int i = bs; i < projectJobs.size(); i++) {
+
+                    Job job = projectJobs.get(i);
+                    if (job.arrival_time() > t2) {
+                        break;
+                    }
+                    if (job.arrival_time() >= t1 && job.arrival_time() <= t2) {
+                        res.add(job);
+                    }
                 }
             }
         }
-        else {System.out.println("No such project exists." + cmd[1]);}
+//        else {System.out.println("No such project exists." + cmd[1]);}
 
         return res;
     }
@@ -495,7 +512,7 @@ public class Scheduler_Driver extends Thread implements SchedulerInterface {
                 Job job = new Job(name,project,project.getPriority(),user,runtime,globalTime,globalArrivalTime);
                 globalArrivalTime+=1;
                 jobMaxHeap.insert(job);
-                jobTrie.insert(name,job); // TODO check time
+                jobTrie.insert(name,job);
                 project.addJob(job);
                 user.addJob(job);
             }
@@ -521,12 +538,12 @@ public class Scheduler_Driver extends Thread implements SchedulerInterface {
         assert job.getProject() != null;
         Project project = job.getProject();
         int jobRunTime = job.getRuntime();
-
+        globalTime+=jobRunTime;
         job.setFinished();
         job.getUser().addConsumedBudget(jobRunTime);
-        job.getUser().setLatestJobTime(jobRunTime);
+        job.getUser().setLatestJobTime(globalTime);
         finishedJobs.add(job);
-        globalTime+=jobRunTime;
+
         job.setCompleteTime(globalTime);
         project.decreaseBudget(jobRunTime);
     }
@@ -555,7 +572,7 @@ public class Scheduler_Driver extends Thread implements SchedulerInterface {
                 Job job = new Job(name,project,project.getPriority(),user,runtime,globalTime,globalArrivalTime);
                 globalArrivalTime+=1;
                 jobMaxHeap.insert(job);
-                jobTrie.insert(name,job); // TODO check time
+                jobTrie.insert(name,job);
                 project.addJob(job);
                 user.addJob(job);
             }
@@ -595,5 +612,40 @@ public class Scheduler_Driver extends Thread implements SchedulerInterface {
                 }
             }
         }
+    }
+
+    /**
+     * @param jobs array
+     * @param arrivalTime t1
+     * @return smallest index with arrival time >= arrivalTime
+     * O(log (# jobs))
+     */
+    private int binarySearch(ArrayList<Job> jobs, int arrivalTime) {
+
+        int left = 0, right = jobs.size()-1;
+
+        while (left <= right) {
+
+            if (jobs.get(left).arrival_time() >= arrivalTime) {
+                return left;
+            }
+
+            int mid = (left + right)/2;
+
+            if (jobs.get(mid).arrival_time() == arrivalTime) {
+                return mid;
+            }
+
+            else if (jobs.get(mid).arrival_time() > arrivalTime && jobs.get(mid-1).arrival_time() < arrivalTime) {
+                return mid;
+            }
+
+            else if (jobs.get(mid).arrival_time() < arrivalTime) {
+                left = mid + 1;
+            }
+
+            else right = mid - 1;
+        }
+        return -1; // when all jobs have arrival time < arrivalTime
     }
 }
