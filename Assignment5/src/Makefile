@@ -69,6 +69,9 @@ pqclean:
 	-@rm PriorityQueue/tmp -f
 	-@rm PriorityQueue/*.class -f
 
+
+
+
 pmbuild:
 	@echo "\n**********"
 	@echo "Building ProjectManagement"
@@ -78,32 +81,25 @@ pmcheck: pmbuild
 	@echo "\n**********"
 	@echo "Checking ProjectManagement"
 	@echo "**********"
+	@$(JAVA) ProjectManagement.Scheduler_Driver ProjectManagement/$(INPUT_FILE) >ProjectManagement/tmp
+	@cd ProjectManagement && sed -i 's/[^[:print:]]//g' tmp && sed -i 's/[^[:print:]]//g' $(EXPECTED_OUTPUT_FILE)
+	@sed -i '/Time elapsed/d' ./ProjectManagement/tmp
+	@sed -i '/Time elapsed/d' ./ProjectManagement/$(EXPECTED_OUTPUT_FILE)
+	@diff $(DIFF_FLAGS) ProjectManagement/tmp ProjectManagement/$(EXPECTED_OUTPUT_FILE) && echo 'PM SUCCESS' || $(call logpmerror)
+newpmcheck: pmbuild
+	@echo "\n**********"
+	@echo "Checking ProjectManagement"
+	@echo "**********"
 	@$(JAVA) ProjectManagement.Scheduler_Grader ProjectManagement/$(INPUT_FILE)
-# 	@cd ProjectManagement && sed -i 's/[^[:print:]]//g' tmp && sed -i 's/[^[:print:]]//g' $(EXPECTED_OUTPUT_FILE)
-# 	@sed -i '/Time elapsed/d' ./ProjectManagement/tmp
-# 	@sed -i '/Time elapsed/d' ./ProjectManagement/$(EXPECTED_OUTPUT_FILE)
-# 	@diff $(DIFF_FLAGS) ProjectManagement/tmp ProjectManagement/$(EXPECTED_OUTPUT_FILE) && echo 'PM SUCCESS' || $(call logpmerror)
+newpmchecklarge: pmbuild
+	@echo "\n**********"
+	@echo "Checking ProjectManagement"
+	@echo "**********"
+	@$(JAVA) ProjectManagement.Scheduler_Grader_Large
+
 pmclean:
 	-@rm ProjectManagement/tmp -f
 	-@rm ProjectManagement/*.class -f
-
-# pmbuild:
-# 	@echo "\n**********"
-# 	@echo "Building ProjectManagement"
-# 	@echo "**********"
-# 	@$(JAVAC) -encoding ISO-8859-1 ProjectManagement/*.java
-# pmcheck: pmbuild
-# 	@echo "\n**********"
-# 	@echo "Checking ProjectManagement"
-# 	@echo "**********"
-# 	@$(JAVA) ProjectManagement.Scheduler_Driver ProjectManagement/$(INPUT_FILE) >ProjectManagement/tmp
-# 	@cd ProjectManagement && sed -i 's/[^[:print:]]//g' tmp && sed -i 's/[^[:print:]]//g' $(EXPECTED_OUTPUT_FILE)
-# 	@sed -i '/Time elapsed/d' ./ProjectManagement/tmp
-# 	@sed -i '/Time elapsed/d' ./ProjectManagement/$(EXPECTED_OUTPUT_FILE)
-# 	@diff $(DIFF_FLAGS) ProjectManagement/tmp ProjectManagement/$(EXPECTED_OUTPUT_FILE) && echo 'PM SUCCESS' || $(call logpmerror)
-# pmclean:
-# 	-@rm ProjectManagement/tmp -f
-# 	-@rm ProjectManagement/*.class -f
 
 
 clean: trieclean pqclean rbtreeclean pmclean

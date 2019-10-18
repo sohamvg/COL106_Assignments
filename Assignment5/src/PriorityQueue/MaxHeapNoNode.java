@@ -2,32 +2,15 @@ package PriorityQueue;
 
 import java.util.ArrayList;
 
-public class MaxHeap<T extends Comparable<T>> implements PriorityQueueInterface<T> {
+/**
+ * @param <T> element
+ * Use only when element.compareTo is never 0
+ */
+public class MaxHeapNoNode<T extends Comparable<T>> implements PriorityQueueInterface<T> {
 
-    private int heapTime = 0;
+    private ArrayList<T> maxHeap;
 
-    public static class Node<t extends Comparable<t>> implements Comparable<Node<t>> {
-        t element;
-        int time;
-
-        public Node(t element, int time) {
-            this.element = element;
-            this.time = time;
-        }
-
-        @Override
-        public int compareTo(Node<t> tNode) {
-            int tCompare = this.element.compareTo(tNode.element);
-            if (tCompare == 0) {
-                return Integer.compare(tNode.time, this.time);
-            }
-            return tCompare;
-        }
-    }
-
-    private ArrayList<Node<T>> maxHeap;
-
-    public MaxHeap() {
+    public MaxHeapNoNode() {
         this.maxHeap = new ArrayList<>();
     }
 
@@ -44,7 +27,7 @@ public class MaxHeap<T extends Comparable<T>> implements PriorityQueueInterface<
     }
 
     private void swap(int i, int j) {
-        Node<T> temp = maxHeap.get(i);
+        T temp = maxHeap.get(i);
         maxHeap.set(i, maxHeap.get(j));
         maxHeap.set(j, temp);
     }
@@ -74,9 +57,7 @@ public class MaxHeap<T extends Comparable<T>> implements PriorityQueueInterface<
      */
     @Override
     public void insert(T element) {
-        heapTime+=1;
-        Node<T> heapElement = new Node<>(element, heapTime);
-        maxHeap.add(heapElement); // could be at any of left or right of root
+        maxHeap.add(element); // could be at any of left or right of root
 
         moveUp(maxHeap.size()-1);
     }
@@ -90,11 +71,10 @@ public class MaxHeap<T extends Comparable<T>> implements PriorityQueueInterface<
         if (maxHeap.size() <= 0) return null;
 
         if (maxHeap.size() == 1) {
-            Node<T> t = maxHeap.remove(0);
-            return t.element;
+            return maxHeap.remove(0);
         }
 
-        Node<T> t = maxHeap.get(0);
+        T t = maxHeap.get(0);
         swap(0, maxHeap.size()-1);
         maxHeap.remove(maxHeap.size()-1);
 
@@ -117,10 +97,10 @@ public class MaxHeap<T extends Comparable<T>> implements PriorityQueueInterface<
             i = big;
         }
 
-        return t.element;
+        return t;
     }
 
-    private void moveDown(ArrayList<Node<T>> maxHeap, int i) {
+    private void moveDown(ArrayList<T> maxHeap, int i) {
         while (left(i) < maxHeap.size()) {
             int l = left(i);
             int big = l;
@@ -135,14 +115,14 @@ public class MaxHeap<T extends Comparable<T>> implements PriorityQueueInterface<
             if (maxHeap.get(big).compareTo(maxHeap.get(i)) <= 0) {
                 break;
             }
-            Node<T> temp = maxHeap.get(i);
+            T temp = maxHeap.get(i);
             maxHeap.set(i, maxHeap.get(big));
             maxHeap.set(big, temp);
             i = big;
         }
     }
 
-    public void buildHeap(ArrayList<Node<T>> arr, int n)
+    public void buildHeap(ArrayList<T> arr, int n)
     {
         if (n <= 0) return;
         int lastNonLeafNode = parent(n);
@@ -173,17 +153,16 @@ public class MaxHeap<T extends Comparable<T>> implements PriorityQueueInterface<
         return maxHeap.size();
     }
 
-//    public ArrayList<Node<T>> getMaxHeap() {
-//        return maxHeap;
-//    }
+    public ArrayList<T> getMaxHeap() {
+        return maxHeap;
+    }
 
+    public void setMaxHeap(ArrayList<T> maxHeap) {
+        this.maxHeap = maxHeap;
+    }
 //    public T getMax() {
 //        return maxHeap.get(0).element;
 //    }
-
-    public void setMaxHeap(ArrayList<Node<T>> maxHeap) {
-        this.maxHeap = maxHeap;
-    }
 
 
 ////////////////////// iterator /////////////////////////

@@ -209,4 +209,64 @@ public class Trie<T> implements TrieInterface {
         System.out.println("Level " + (level-1) + ": ");
         System.out.println("-------------");
     }
+
+    private ArrayList<T> traverseLevel(int level) {
+
+        int count = 1;
+        /*
+          q stores all nodes in the level
+         */
+        Queue<TrieNode<T>> q = new LinkedList<TrieNode<T>>();
+
+        /*
+          a stores all characters in the level
+         */
+        ArrayList<T> a = new ArrayList<>();
+
+        q.add(root);
+        int queueSize = 1;
+        while (count < level) {
+            for (int i = 0; i < queueSize; i++) {
+                TrieNode<T> t = q.remove();
+                for (int j = 0; j < trieNodeSize; j++) {
+                    if (t.childNodes[j] != null) {
+                        q.add(t.childNodes[j]);
+                    }
+                }
+            }
+            queueSize = q.size();
+            count++;
+        }
+
+        if (queueSize == 0){
+            isPrintableLevel=false;
+            return a;
+        }
+
+        for (int i = 0; i < queueSize; i++) {
+            TrieNode<T> t = q.remove();
+            for (int j = 0; j < trieNodeSize; j++) {
+                if (t.getValue() != null) {
+                    a.add(t.getValue());
+                }
+            }
+        }
+
+        return a;
+    }
+
+    public ArrayList<T> traverse() {
+        ArrayList<T> a1 = new ArrayList<>();
+
+        int level = 1;
+        isPrintableLevel = true;
+        while (isPrintableLevel) {
+            for (T t : traverseLevel(level)) {
+                a1.add(t);
+            }
+            level++;
+        }
+        return a1;
+    }
+
 }

@@ -6,14 +6,15 @@ public class User implements Comparable<User>, UserReport_ {
 
     private String name;
     private int consumedBudget;
-    private int latestJobTime;
+    private int latestJobTime, arrivalTime;
     private ArrayList<Job> jobs;
 
-    User(String name, int consumedBudget, int latestJobTime) {
+    User(String name, int consumedBudget, int latestJobTime, int arrivalTime) {
         this.name = name;
         this.consumedBudget = consumedBudget;
         this.latestJobTime = latestJobTime;
         this.jobs = new ArrayList<>();
+        this.arrivalTime = arrivalTime;
     }
 
     String getName() {
@@ -38,11 +39,22 @@ public class User implements Comparable<User>, UserReport_ {
 
     @Override
     public int compareTo(User user) {
-        int consumedCompare = Integer.compare(this.consumedBudget, user.consumedBudget);
+//        int consumedCompare = Integer.compare(this.consumedBudget, user.consumedBudget); // TODO rev for arr
+//        if (consumedCompare == 0) {
+//            return Integer.compare(user.latestJobTime, this.latestJobTime); // checked
+//        }
+//        return consumedCompare;
+
+        int consumedCompare = this.consumedBudget - user.consumedBudget; // use maxheap with node
         if (consumedCompare == 0) {
-            return Integer.compare(user.latestJobTime, this.latestJobTime);
+            int t = user.latestJobTime - this.latestJobTime;
+            if (t==0) {
+                return user.arrivalTime - this.arrivalTime; // TODO
+            }
+            return t;
         }
         return consumedCompare;
+
     }
 
     @Override
@@ -57,5 +69,13 @@ public class User implements Comparable<User>, UserReport_ {
 
     int getLatestJobTime() {
         return latestJobTime;
+    }
+
+    @Override
+    public String toString() {
+        return "User{" +
+                "name='" + name + '\'' +
+                ", usage=" + consumedBudget +
+                '}';
     }
 }
