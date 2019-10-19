@@ -15,6 +15,10 @@ public class MaxHeap<T extends Comparable<T>> implements PriorityQueueInterface<
             this.time = time;
         }
 
+        public t getElement() {
+            return element;
+        }
+
         @Override
         public int compareTo(Node<t> tNode) {
             int tCompare = this.element.compareTo(tNode.element);
@@ -131,7 +135,6 @@ public class MaxHeap<T extends Comparable<T>> implements PriorityQueueInterface<
                     big = r;
                 }
             }
-
             if (maxHeap.get(big).compareTo(maxHeap.get(i)) <= 0) {
                 break;
             }
@@ -152,6 +155,40 @@ public class MaxHeap<T extends Comparable<T>> implements PriorityQueueInterface<
         }
     }
 
+
+    public Node<T> extractMax2() {
+        if (maxHeap.size() <= 0) return null;
+
+        if (maxHeap.size() == 1) {
+            return maxHeap.remove(0);
+        }
+
+        Node<T> t = maxHeap.get(0);
+        swap(0, maxHeap.size()-1);
+        maxHeap.remove(maxHeap.size()-1);
+
+        int i = 0;
+        while (left(i) < maxHeap.size()) {
+            int l = left(i);
+            int big = l;
+
+            if (right(i) < maxHeap.size()) {
+                int r = right(i);
+                if (maxHeap.get(l).compareTo(maxHeap.get(r)) < 0) {
+                    big = r;
+                }
+            }
+
+            if (maxHeap.get(big).compareTo(maxHeap.get(i)) <= 0) {
+                break;
+            }
+            swap(i, big);
+            i = big;
+        }
+
+        return t;
+    }
+
 /*
 /////////////////// search function //////////////////////
 
@@ -167,11 +204,11 @@ public class MaxHeap<T extends Comparable<T>> implements PriorityQueueInterface<
 
     /**
      * Time complexity is O(1) since ArrayList.size() runs in constant time
-     * @return heap size
+     *
      */
-    public int heapSize() {
-        return maxHeap.size();
-    }
+//    public int heapSize() {
+//        return maxHeap.size();
+//    }
 
 //    public ArrayList<Node<T>> getMaxHeap() {
 //        return maxHeap;

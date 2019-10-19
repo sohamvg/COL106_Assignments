@@ -50,9 +50,9 @@ public class Job implements Comparable<Job>, JobReport_ {
         return priority;
     }
 
-    public void setPriority(int priority) {
-        this.priority = priority;
-    }
+//    public void setPriority(int priority) {
+//        this.priority = priority;
+//    }
 
     public User getUser() {
         return user;
@@ -83,7 +83,6 @@ public class Job implements Comparable<Job>, JobReport_ {
                     ", jobstatus=REQUESTED" +
                     ", execution_time=" + runtime +
                     ", end_time=null" +
-                    ", priority=" + priority +
                     ", name='" + name + '\'' +
                     '}';
         }
@@ -94,7 +93,6 @@ public class Job implements Comparable<Job>, JobReport_ {
                     ", jobstatus=COMPLETED" +
                     ", execution_time=" + runtime +
                     ", end_time=" + completeTime +
-                    ", priority=" + priority +
                     ", name='" + name + '\'' +
                     '}';        }
     }
@@ -119,10 +117,10 @@ public class Job implements Comparable<Job>, JobReport_ {
     public int arrival_time() {
         return assignTime;
     }
-
-    public int getPreciseArrivalTime() {
-        return preciseArrivalTime;
-    }
+//
+//    public int getPreciseArrivalTime() {
+//        return preciseArrivalTime;
+//    }
 
     @Override
     public int completion_time() {

@@ -16,15 +16,16 @@ public class Scheduler_Driver extends Thread implements SchedulerInterface {
     private static int globalTime = 0;
     private static int globalArrivalTime = 0;
     private static int projectArrivalTime = 0;
-    private static int userArrivalTime = 0;
+//    private static int userArrivalTime = 0;
+    private static JobCompletionComparator jj = new JobCompletionComparator();
 
     private static Trie<Project> projectTrie = new Trie<Project>();
     private static Trie<User> userTrie = new Trie<User>();
     private static Trie<Job> jobTrie = new Trie<Job>();
 
     private static MaxHeapNoNode<Job> jobMaxHeap = new MaxHeapNoNode<>(); // stores all untried jobs = total - ( completed + notReadyJobs )
-    private static MaxHeap<Project> notReadyProjects = new MaxHeap<>();
 
+//    private static ArrayList<MaxHeap.Node<User>> ual = new ArrayList<>();
     private static ArrayList<User> userArrayList = new ArrayList<>();
     private static ArrayList<Job> finishedJobs = new ArrayList<>();
     private static ArrayList<Job> notReadyJobs = new ArrayList<>(); // jobs which were tried but have insufficient budget
@@ -61,7 +62,7 @@ public class Scheduler_Driver extends Thread implements SchedulerInterface {
 //                String project_name, user_name;
 //                Integer start_time, end_time;
 
-                long qstart_time, qend_time;
+//                long qstart_time, qend_time;
 
                 switch (cmd[0]) {
                     case "PROJECT":
@@ -93,10 +94,10 @@ public class Scheduler_Driver extends Thread implements SchedulerInterface {
 //                        qstart_time = System.nanoTime();
                         ArrayList<UserReport_> res = timed_top_consumer(Integer.parseInt(cmd[1]));
 //                        qend_time = System.nanoTime();
-
-                        System.out.println("Top query");
-//                        System.out.println("Time elapsed (ns): " + (qend_time - qstart_time));
-                        Print(res);
+//////
+//                        System.out.println("Top query");
+////                        System.out.println("Time elapsed (ns): " + (qend_time - qstart_time));
+//                        Print(res);
 
                         break;
                     case "NEW_FLUSH":
@@ -129,49 +130,49 @@ public class Scheduler_Driver extends Thread implements SchedulerInterface {
 
     @Override
     public ArrayList<JobReport_> timed_report(String[] cmd) {
-        long qstart_time, qend_time;
+//        long qstart_time, qend_time;
         ArrayList<JobReport_> res = null;
         switch (cmd[0]) {
             case "NEW_PROJECT":
 //                qstart_time = System.nanoTime();
                 res = handle_new_project(cmd);
-//                qend_time = System.nanoTime();
-                System.out.println("Project query");
-//                System.out.println("Time elapsed (ns): " + (qend_time - qstart_time));
-
-                print(res);
+////                qend_time = System.nanoTime();
+//                System.out.println("Project query");
+////                System.out.println("Time elapsed (ns): " + (qend_time - qstart_time));
+//
+//                print(res);
 
                 break;
             case "NEW_USER":
 //                qstart_time = System.nanoTime();
                 res = handle_new_user(cmd);
 //                qend_time = System.nanoTime();
-
-                System.out.println("User query");
-//                System.out.println("Time elapsed (ns): " + (qend_time - qstart_time));
-
-                print(res);
+////
+//                System.out.println("User query");
+////                System.out.println("Time elapsed (ns): " + (qend_time - qstart_time));
+//
+//                print(res);
 
                 break;
             case "NEW_PROJECTUSER":
 //                qstart_time = System.nanoTime();
                 res = handle_new_projectuser(cmd);
 //                qend_time = System.nanoTime();
-
-                System.out.println("Project User query");
-//                System.out.println("Time elapsed (ns): " + (qend_time - qstart_time));
-
-                print(res);
+////
+//                System.out.println("Project User query");
+////                System.out.println("Time elapsed (ns): " + (qend_time - qstart_time));
+//
+//                print(res);
 
                 break;
             case "NEW_PRIORITY":
 //                qstart_time = System.nanoTime();
                 res = handle_new_priority(cmd[1]);
 //                qend_time = System.nanoTime();
-
-                System.out.println("Priority query");
-                res.sort(null);
-                print(res);
+////
+//                System.out.println("Priority query");
+//                res.sort(null);
+//                print(res);
 
                 break;
         }
@@ -182,7 +183,10 @@ public class Scheduler_Driver extends Thread implements SchedulerInterface {
 
     @Override
     public ArrayList<UserReport_> timed_top_consumer(int top) {
-        ArrayList<UserReport_> topUsers = new ArrayList<>();
+
+//---------------- m1 ---------------
+//
+//        ArrayList<UserReport_> topUsers = new ArrayList<>();
 //        ArrayList<MaxHeap.Node<User>> t = new ArrayList<>();
 //
 //        int tu = 0;
@@ -196,31 +200,64 @@ public class Scheduler_Driver extends Thread implements SchedulerInterface {
 //        temp.buildHeap(t,t.size());
 //        temp.setMaxHeap(t);
 //
-//        int s = temp.heapSize();
 //        while (top != 0) {
 //
 //            User user = temp.extractMax();
 //
 //            if (user == null) {
 //                break;
-//            }
-//
-//            else {
+//            } else {
 //                topUsers.add(user);
 //            }
 //            top = top - 1;
 //        }
 
+//------------------
+
+//        ---------- m2 -------------------------
+//        ArrayList<UserReport_> topUsers = new ArrayList<>();
+//        ArrayList<MaxHeap.Node<User>> t = new ArrayList<>();
+//
+//        MaxHeap<User> temp = new MaxHeap<>();
+//        temp.setMaxHeap(ual);
+//        temp.buildHeap(ual,ual.size());
+//
+//
+//        while (top != 0) {
+//
+//            MaxHeap.Node<User> user = temp.extractMax2();
+//
+//
+//            if (user == null) {
+//                break;
+//            }
+//
+//            else {
+//                t.add(user);
+//                topUsers.add(user.getElement());
+//            }
+//            top = top - 1;
+//        }
+//
+//        for (MaxHeap.Node<User> user : t) {
+//            if (user != null) {
+//                ual.add(user);
+//            }
+//        }
+//---------------------------------------
+
+//  ----------------- M3---------------
+        ArrayList<UserReport_> topUsers = new ArrayList<>();
         userArrayList.sort(null); // O((# user) * log(# user)) //
 
         int size = userArrayList.size();
-        for (int i = size-1; i > size-1-top; i--) {
-            if (i < 0) {
+        for (int i = 0; i < top; i++) {
+            if (i >= size) {
                 break;
             }
             topUsers.add(userArrayList.get(i));
         }
-
+//---------------------------------------
 
         return topUsers;
     }
@@ -228,34 +265,65 @@ public class Scheduler_Driver extends Thread implements SchedulerInterface {
 
     @Override
     public void timed_flush(int waittime) {
-        System.out.println("Flush query");
+//        System.out.println("Flush query");
         // flush...
         int timeAtFlush = globalTime;
         ArrayList<Job> temp = new ArrayList<>();
-        Job job = jobMaxHeap.extractMax();
-        while (job != null) {
-            int jobWaitTime = timeAtFlush - job.arrival_time();
-            if (jobWaitTime >= waittime && job.getRuntime() <= job.getProject().getBudget()) {
-                execute_a_job(job);
+        ArrayList<Job> finalHeap = new ArrayList<>();
+//        Job job = jobMaxHeap.extractMax();
+//        while (job != null) {
+//            int jobWaitTime = timeAtFlush - job.arrival_time();
+//            if (jobWaitTime >= waittime && job.getRuntime() <= job.getProject().getBudget()) {
+//                execute_a_job(job);
+//
+//                System.out.println("Flushed: " + job.toString());
+//            }
+//            else {
+//                temp.add(job);
+//            }
+//
+//            job = jobMaxHeap.extractMax();
+//        }
+//
+//
+//        jobMaxHeap.buildHeap(temp,temp.size());
+//        jobMaxHeap.setMaxHeap(temp);
 
-                System.out.println("Flushed: " + job.toString());
+
+        for (Job job1 : jobMaxHeap.getMaxHeap()) {
+            int jobWaitTime = timeAtFlush - job1.arrival_time();
+            if (jobWaitTime >= waittime && job1.getRuntime() <= job1.getProject().getBudget()) {
+                temp.add(job1);
             }
             else {
-                temp.add(job);
+                finalHeap.add(job1);
             }
-
-            job = jobMaxHeap.extractMax();
         }
 
-        assert jobMaxHeap.heapSize() == 0;
+        MaxHeapNoNode<Job> tempHeap = new MaxHeapNoNode<>();
+        tempHeap.setMaxHeap(temp);
+        tempHeap.buildHeap(temp, temp.size());
 
-        jobMaxHeap.buildHeap(temp,temp.size());
-        jobMaxHeap.setMaxHeap(temp);
+        Job job = tempHeap.extractMax();
+        while (job != null) {
+            if (job.getRuntime() <= job.getProject().getBudget()) {
+                execute_a_job(job);
+
+            }
+            else {
+                finalHeap.add(job);
+            }
+
+            job = tempHeap.extractMax();
+        }
+
+        jobMaxHeap.buildHeap(finalHeap, finalHeap.size());
+        jobMaxHeap.setMaxHeap(finalHeap);
 
     }
 
 
-    private ArrayList<JobReport_> handle_new_priority(String s) {
+    public ArrayList<JobReport_> handle_new_priority(String s) {
         int priority = Integer.parseInt(s);
         ArrayList<JobReport_> res = new ArrayList<>();
 
@@ -274,7 +342,7 @@ public class Scheduler_Driver extends Thread implements SchedulerInterface {
     }
 
 
-    private ArrayList<JobReport_> handle_new_projectuser(String[] cmd) { // TODO check time
+    public ArrayList<JobReport_> handle_new_projectuser(String[] cmd) {
 
         int t1 = Integer.parseInt(cmd[3]);
         int t2 = Integer.parseInt(cmd[4]);
@@ -297,7 +365,7 @@ public class Scheduler_Driver extends Thread implements SchedulerInterface {
                         }
                     }
                 }
-                res.sort(new JobCompletionComparator());
+                res.sort(jj);
             }
 //            else {System.out.println("No such user exists." + cmd[2]);}
 
@@ -305,7 +373,7 @@ public class Scheduler_Driver extends Thread implements SchedulerInterface {
     }
 
 
-    private ArrayList<JobReport_> handle_new_user(String[] cmd) {
+    public ArrayList<JobReport_> handle_new_user(String[] cmd) {
         int t1 = Integer.parseInt(cmd[2]);
         int t2 = Integer.parseInt(cmd[3]);
         ArrayList<JobReport_> res = new ArrayList<>();
@@ -333,7 +401,7 @@ public class Scheduler_Driver extends Thread implements SchedulerInterface {
     }
 
 
-    private ArrayList<JobReport_> handle_new_project(String[] cmd) {
+    public ArrayList<JobReport_> handle_new_project(String[] cmd) {
 
         int t1 = Integer.parseInt(cmd[2]);
         int t2 = Integer.parseInt(cmd[3]);
@@ -373,7 +441,6 @@ public class Scheduler_Driver extends Thread implements SchedulerInterface {
 
         while (job != null) {
 
-            assert job.getProject() != null;
             Project project = job.getProject();
 
 
@@ -497,11 +564,11 @@ public class Scheduler_Driver extends Thread implements SchedulerInterface {
 
     public void handle_user(String name) {
         System.out.println("Creating user");
-        User user = new User(name,0,0,userArrivalTime);
-        userArrivalTime+=1;
-        userTrie.insert(user.getName(), user);
-//        userMaxHeap.insert(user);
-        userArrayList.add(user);
+        User user = new User(name,0,0);
+        boolean b = userTrie.insert(user.getName(), user);
+        if (b) {
+            userArrayList.add(user);
+        }
     }
 
 
@@ -538,14 +605,15 @@ public class Scheduler_Driver extends Thread implements SchedulerInterface {
         int budget = Integer.parseInt(cmd[3]);
         Project project = new Project(name, priority, budget, projectArrivalTime);
         projectArrivalTime+=1;
-        projectTrie.insert(name, project);
-        allProjects.add(project);
+        boolean b= projectTrie.insert(name, project);
+        if (b) {
+            allProjects.add(project);
+        }
     }
 
 
     private void execute_a_job(Job job) {
 
-        assert job.getProject() != null;
         Project project = job.getProject();
         int jobRunTime = job.getRuntime();
         globalTime+=jobRunTime;
@@ -560,11 +628,13 @@ public class Scheduler_Driver extends Thread implements SchedulerInterface {
 
     @Override
     public void timed_handle_user(String name) {
-        User user = new User(name,0,0,userArrivalTime);
-        userArrivalTime+=1;
-        userTrie.insert(user.getName(), user);
-//        userMaxHeap.insert(user);
-        userArrayList.add(user);
+        User user = new User(name,0,0);
+        boolean b = userTrie.insert(user.getName(), user);
+        if (b) {
+//            ual.add(new MaxHeap.Node<>(user,userArrivalTime));
+            userArrayList.add(user);
+//            userArrivalTime+=1;
+        }
     }
 
     @Override
@@ -597,8 +667,10 @@ public class Scheduler_Driver extends Thread implements SchedulerInterface {
         int budget = Integer.parseInt(cmd[3]);
         Project project = new Project(name, priority, budget, projectArrivalTime);
         projectArrivalTime+=1;
-        projectTrie.insert(name, project);
-        allProjects.add(project);
+        boolean b= projectTrie.insert(name, project);
+        if (b) {
+            allProjects.add(project);
+        }
     }
 
     @Override
@@ -609,7 +681,6 @@ public class Scheduler_Driver extends Thread implements SchedulerInterface {
 
             while (job != null) {
 
-                assert job.getProject() != null;
                 Project project = job.getProject();
 
                 if (project.getBudget() >= job.getRuntime()) {

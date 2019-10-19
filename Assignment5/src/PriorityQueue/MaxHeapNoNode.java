@@ -101,7 +101,7 @@ public class MaxHeapNoNode<T extends Comparable<T>> implements PriorityQueueInte
     }
 
     private void moveDown(ArrayList<T> maxHeap, int i) {
-        while (left(i) < maxHeap.size()) {
+        while (left(i) < maxHeap.size() && i >= 0) {
             int l = left(i);
             int big = l;
 
