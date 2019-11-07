@@ -36,8 +36,8 @@ public class MyArrayList<T> {
         return newMyArrayList;
     }
 
-    public Object[] getMyArrayList() {
-        return myArrayList;
+    public T get(int index) {
+        return (T) myArrayList[index];
     }
 
     @Override

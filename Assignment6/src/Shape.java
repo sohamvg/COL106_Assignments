@@ -8,6 +8,8 @@ public class Shape implements ShapeInterface
 //    TODO driver
     private MyHashTable<String, Point> pointHashTable = new MyHashTable<>(hashTableSize);
     private MyHashTable<String, Edge> edgeHashTable = new MyHashTable<>(hashTableSize);
+    private MyHashTable<String, Triangle> triangleMyHashTable = new MyHashTable<>(hashTableSize);
+    private MyArrayList<Edge> allEdgeList = new MyArrayList<>(hashTableSize);
 
     @Override
     public boolean ADD_TRIANGLE(float[] triangle_coord) {
@@ -29,86 +31,87 @@ public class Shape implements ShapeInterface
         boolean foundE3 = false;
 
         Triangle triangle = new Triangle(p1,p2,p3,e1,e2,e3);
+        triangleMyHashTable.insert(triangle.toString(), triangle);
 
         // e1
-        Object[] e1List = edgeHashTable.getHashList(e1.toString());
-        if (e1List != null) {
-            for (Object obj : e1List) {
-                Edge e = (Edge) obj;
-                if (e1.toString().equals(e.toString())) {
-                    p1 = e.getP1();
-                    p2 = e.getP2();
-
-                    e1 = e;
-
-                    foundP1 = true;
-                    foundP2 = true;
-                    foundE1 = true;
-                    break;
-                }
+        Edge oldE1 = edgeHashTable.get(e1.toString());
+        if (oldE1 != null) {
+            if (p1.equals(oldE1.getP1())) {
+                p1 = oldE1.getP1();
+                p2 = oldE1.getP2();
             }
+            else {
+                p1 = oldE1.getP2();
+                p2 = oldE1.getP1();
+            }
+
+            e1 = oldE1;
+
+            foundP1 = true;
+            foundP2 = true;
+            foundE1 = true;
         }
 
         // e2
-        Object[] e2List = edgeHashTable.getHashList(e2.toString());
-        if (e2List != null) {
-            for (Object obj : e2List) {
-                Edge e = (Edge) obj;
-                if (e2.toString().equals(e.toString())) {
-                    if (foundP2) {
-                        if (p3.equals(e.getP1())) {
-                            p3 = e.getP1();
-                        } else {
-                            p3 = e.getP2();
-                        }
-                    } else { // p2 is already found
-                        p2 = e.getP1();
-                        p3 = e.getP2();
-                    }
-
-                    e2 = e;
-
-                    foundP2 = true;
-                    foundP3 = true;
-                    foundE2 = true;
-                    break;
+        Edge oldE2 = edgeHashTable.get(e2.toString());
+        if (oldE2 != null) {
+            if (foundP2) {
+                if (p3.equals(oldE2.getP1())) {
+                    p3 = oldE2.getP1();
+                } else {
+                    p3 = oldE2.getP2();
+                }
+            } else {
+                if (p2.equals(oldE2.getP1())) {
+                    p2 = oldE2.getP1();
+                    p3 = oldE2.getP2();
+                }
+                else {
+                    p2 = oldE2.getP2();
+                    p3 = oldE2.getP1();
                 }
             }
+
+            e2 = oldE2;
+
+            foundP2 = true;
+            foundP3 = true;
+            foundE2 = true;
         }
 
         // e3
-        Object[] e3List = edgeHashTable.getHashList(e3.toString());
-        if (e3List != null) {
-            for (Object obj : e3List) {
-                Edge e = (Edge) obj;
-                if (e3.toString().equals(e.toString())) {
-                    if (foundP1) {
-                        if (!foundP3) {
-                            if (p3.equals(e.getP1())) {
-                                p3 = e.getP1();
-                            } else {
-                                p3 = e.getP2();
-                            }
-                        }
+        Edge oldE3 = edgeHashTable.get(e3.toString());
+        if (oldE3 != null) {
+            if (foundP1) {
+                if (!foundP3) {
+                    if (p3.equals(oldE3.getP1())) {
+                        p3 = oldE3.getP1();
                     } else {
-                        if (foundP3) {
-                            if (p1.equals(e.getP1())) {
-                                p3 = e.getP1();
-                            } else p3 = e.getP2();
-                        } else {
-                            p1 = e.getP1();
-                            p3 = e.getP2();
-                        }
+                        p3 = oldE3.getP2();
                     }
-
-                    e3 = e;
-
-                    foundP1 = true;
-                    foundP3 = true;
-                    foundE3 = true;
-                    break;
+                }
+            } else {
+                if (foundP3) {
+                    if (p1.equals(oldE3.getP1())) {
+                        p1 = oldE3.getP1();
+                    } else p1 = oldE3.getP2();
+                } else {
+                    if (p1.equals(oldE3.getP1())) {
+                        p1 = oldE3.getP1();
+                        p3 = oldE3.getP2();
+                    }
+                    else {
+                        p1 = oldE3.getP2();
+                        p3 = oldE3.getP1();
+                    }
                 }
             }
+
+            e3 = oldE3;
+
+            foundP1 = true;
+            foundP3 = true;
+            foundE3 = true;
         }
 
 
@@ -121,42 +124,25 @@ public class Shape implements ShapeInterface
 
         // if p1,p2,p3 are not found in edges
         if (!foundP1) {
-            Object[] p1List = pointHashTable.getHashList(p1.toString());
-            if (p1List != null) {
-                for (Object obj : p1List) {
-                    Point p = (Point) obj;
-                    if (p1.equals(p)) {
-                        p1 = p;
-                        foundP1 = true;
-                        break;
-                    }
-                }
+            Point oldP1 = pointHashTable.get(p1.toString());
+            if (oldP1 != null) {
+                p1 = oldP1;
+                foundP1 = true;
             }
         }
         if (!foundP2) {
-            Object[] p2List = pointHashTable.getHashList(p2.toString());
-            if (p2List != null) {
-                for (Object obj : p2List) {
-                    Point p = (Point) obj;
-                    if (p2.equals(p)) {
-                        p2 = p;
-                        foundP2 = true;
-                        break;
-                    }
-                }
+            Point oldP2 = pointHashTable.get(p2.toString());
+            if (oldP2 != null) {
+                p2 = oldP2;
+                foundP2 = true;
             }
+
         }
         if (!foundP3) {
-            Object[] p3List = pointHashTable.getHashList(p3.toString());
-            if (p3List != null) {
-                for (Object obj : p3List) {
-                    Point p = (Point) obj;
-                    if (p3.equals(p)) {
-                        p3 = p;
-                        foundP3 = true;
-                        break;
-                    }
-                }
+            Point oldP3 = pointHashTable.get(p3.toString());
+            if (oldP3 != null) {
+                p3 = oldP3;
+                foundP3 = true;
             }
         }
 
@@ -181,12 +167,18 @@ public class Shape implements ShapeInterface
             else meshType = 2;
         }
 
+        if (!foundE1 && !foundE2 && !foundE3) connectedComponents+=1;
+
         if (!foundE1) {
             edgeHashTable.insert(e1.toString(), e1);
+            allEdgeList.add(e1);
             p1.addEdge(e1);
+            p1.addNeighbourPoint(p2);
             p2.addEdge(e1);
+            p2.addNeighbourPoint(p1);
 
             boundaryEdges+=1;
+//            System.out.println("not found e1: " + e1 + " " + e1.triangleListSize());
         }
         else {
             if (e1.triangleListSize() == 2) boundaryEdges-=1;
@@ -196,10 +188,14 @@ public class Shape implements ShapeInterface
 
         if (!foundE2) {
             edgeHashTable.insert(e2.toString(), e2);
+            allEdgeList.add(e2);
             p2.addEdge(e2);
+            p2.addNeighbourPoint(p3);
             p3.addEdge(e2);
+            p3.addNeighbourPoint(p2);
 
             boundaryEdges+=1;
+//            System.out.println("not found e2: " + e2 + " points : " + p2 + " " + p3);
         }
         else {
             if (e2.triangleListSize() == 2) boundaryEdges-=1;
@@ -209,10 +205,14 @@ public class Shape implements ShapeInterface
 
         if (!foundE3) {
             edgeHashTable.insert(e3.toString(), e3);
+            allEdgeList.add(e3);
             p1.addEdge(e3);
+            p1.addNeighbourPoint(p3);
             p3.addEdge(e3);
+            p3.addNeighbourPoint(p1);
 
             boundaryEdges+=1;
+//            System.out.println("not found e3: " + e3 + " " + e3.triangleListSize());
         }
         else {
             if (e3.triangleListSize() == 2) boundaryEdges-=1;
@@ -240,51 +240,166 @@ public class Shape implements ShapeInterface
 
     @Override
     public EdgeInterface[] BOUNDARY_EDGES() {
-        return new EdgeInterface[0];
+        MyArrayList<Edge> temp = new MyArrayList<>();
+
+        for (int i = 0; i < allEdgeList.size(); i++) {
+            Edge e = allEdgeList.get(i);
+            if (e.triangleListSize() == 1) temp.add(e);
+        }
+
+        EdgeInterface[] boundaryEdges = new EdgeInterface[temp.size()];
+        for (int i = 0; i < temp.size(); i++) {
+            boundaryEdges[i] = temp.get(i);
+        }
+
+        if (boundaryEdges.length == 0) return null;
+        return boundaryEdges;
     }
 
     @Override
     public int COUNT_CONNECTED_COMPONENTS() {
-        return 0;
+        return connectedComponents;
     }
 
     @Override
     public TriangleInterface[] NEIGHBORS_OF_TRIANGLE(float[] triangle_coord) {
-        return new TriangleInterface[0];
+        String hashKey = triangleToString(triangle_coord);
+        Triangle t = triangleMyHashTable.get(hashKey);
+        if (t == null) return null;
+        else {
+            TriangleInterface[] res = new TriangleInterface[t.getE1().triangleListSize()+t.getE2().triangleListSize()+t.getE3().triangleListSize()-3];
+            int index = 0;
+
+            for (int i = 0; i < t.getE1().triangleListSize(); i++) {
+                Triangle ti = t.getE1().getEdgeTriangleList().get(i);
+                if (!ti.equals(t)) {
+                    res[index] = ti;
+                    index+=1;
+
+                }
+                res[i] = t.getE1().getEdgeTriangleList().get(i);
+            }
+
+            for (int i = 0; i < t.getE2().triangleListSize(); i++) {
+                Triangle ti = t.getE2().getEdgeTriangleList().get(i);
+                if (!ti.equals(t)) {
+                    res[index] = ti;
+                    index+=1;
+                }
+            }
+            for (int i = 0; i < t.getE3().triangleListSize(); i++) {
+                Triangle ti = t.getE3().getEdgeTriangleList().get(i);
+                if (!ti.equals(t)) {
+                    res[index] = ti;
+                    index+=1;
+                }
+            }
+
+//            System.out.println(res.toString());
+            return res;
+        }
     }
 
     @Override
     public EdgeInterface[] EDGE_NEIGHBOR_TRIANGLE(float[] triangle_coord) {
-        return new EdgeInterface[0];
+        EdgeInterface[] res = new EdgeInterface[3];
+        String hashKey = triangleToString(triangle_coord);
+
+        Triangle t = triangleMyHashTable.get(hashKey);
+        if (t == null) {
+            return null;
+        }
+        else {
+            res[0] = t.getE1();
+            res[1] = t.getE2();
+            res[2] = t.getE3();
+        }
+        return res;
     }
 
     @Override
     public PointInterface[] VERTEX_NEIGHBOR_TRIANGLE(float[] triangle_coord) {
-        return new PointInterface[0];
+        PointInterface[] res = new PointInterface[3];
+        String hashKey = triangleToString(triangle_coord);
+
+        Triangle t = triangleMyHashTable.get(hashKey);
+        if (t == null) return null;
+        else {
+            res[0] = t.getP1();
+            res[1] = t.getP2();
+            res[2] = t.getP3();
+        }
+        return res;
     }
 
     @Override
     public TriangleInterface[] EXTENDED_NEIGHBOR_TRIANGLE(float[] triangle_coord) {
+        String hashKey = triangleToString(triangle_coord);
+
+        Triangle t = triangleMyHashTable.get(hashKey);
+        if (t == null) return null;
+        else {
+            MyArrayList<Triangle> tP1 = t.getP1().getPointTriangleList(); // triangles at p1
+            for (int i = 0; i < tP1.size(); i++) {
+                Triangle ti = tP1.get(i);
+                if (ti.getP1().equals(t.getP1())) {
+                    // p1 is shared by e1 and e3
+                }
+            }
+        }
         return new TriangleInterface[0];
     }
 
     @Override
     public TriangleInterface[] INCIDENT_TRIANGLES(float[] point_coordinates) {
-        return new TriangleInterface[0];
+        String hashKey = pointToString(point_coordinates);
+        Point p = pointHashTable.get(hashKey);
+        if (p == null) return null;
+        else {
+            TriangleInterface[] res = new TriangleInterface[p.getPointTriangleList().size()];
+            for (int i = 0; i < p.getPointTriangleList().size(); i++) {
+                res[i] = p.getPointTriangleList().get(i); // already sorted
+            }
+            return res;
+        }
     }
 
     @Override
     public PointInterface[] NEIGHBORS_OF_POINT(float[] point_coordinates) {
-        return new PointInterface[0];
+        String hashKey = pointToString(point_coordinates);
+
+        Point p = pointHashTable.get(hashKey);
+        if (p == null) return null;
+        else {
+            PointInterface[] res = new PointInterface[p.getPointEdgeList().size()];
+
+            for (int i = 0; i < p.getNeighbourPointList().size(); i++) {
+                res[i] = p.getNeighbourPointList().get(i);
+            }
+
+//            System.out.println(Arrays.toString(res));
+            return res;
+        }
     }
 
     @Override
     public EdgeInterface[] EDGE_NEIGHBORS_OF_POINT(float[] point_coordinates) {
-        return new EdgeInterface[0];
+        String hashKey = pointToString(point_coordinates);
+
+        Point p = pointHashTable.get(hashKey);
+        if (p == null) return null;
+        else {
+            EdgeInterface[] res = new EdgeInterface[p.getPointEdgeList().size()];
+            for (int i = 0; i < p.getPointEdgeList().size(); i++) {
+                res[i] = p.getPointEdgeList().get(i);
+            }
+            return res;
+        }
     }
 
     @Override
     public TriangleInterface[] FACE_NEIGHBORS_OF_POINT(float[] point_coordinates) {
+        // same as incident triangles
         return new TriangleInterface[0];
     }
 
@@ -316,6 +431,33 @@ public class Shape implements ShapeInterface
     @Override
     public PointInterface[] CLOSEST_COMPONENTS() {
         return new PointInterface[0];
+    }
+
+    private String pointToString(float[] point_coordinates) {
+        return point_coordinates[0] + "," + point_coordinates[1] + "," + point_coordinates[2];
+    }
+
+    private String triangleToString(float[] triangle_coord) {
+        Point p1 = new Point(triangle_coord[0], triangle_coord[1], triangle_coord[2]);
+        Point p2 = new Point(triangle_coord[3], triangle_coord[4], triangle_coord[5]);
+        Point p3 = new Point(triangle_coord[6], triangle_coord[7], triangle_coord[8]);
+
+        if (p1.compareTo(p2) < 0) {
+            if (p2.compareTo(p3) < 0) {
+                return p1 + "," + p2 + "," + p3;
+            }
+            else {
+                if (p1.compareTo(p3) < 0) return p1 + "," + p3 + "," + p2;
+                else return p3 + "," + p1 + "," + p2;
+            }
+        }
+        else {
+            if (p1.compareTo(p3) < 0) return p2 + "," + p1 + "," + p3;
+            else {
+                if (p2.compareTo(p3) < 0) return p2 + "," + p3 + "," + p1;
+                else return p3 + "," + p2 + "," + p1;
+            }
+        }
     }
 }
 

@@ -18,11 +18,42 @@ public class MyHashTable<K extends Comparable<K>, T> implements Hash {
         inserted+=1;
     }
 
-    public Object[] getHashList(K key) {
+    public MyArrayList<T> getHashList(K key) {
         int hashedKey = (int) Hash.djb2(key.toString(), hashSize);
         if (hashTable[hashedKey] == null) {
             return null;
         }
-        return hashTable[hashedKey].getMyArrayList();
+        return hashTable[hashedKey];
+    }
+
+//    public T get(K key) {
+//        int hashedKey = (int) Hash.djb2(key.toString(), hashSize);
+//        if (hashTable[hashedKey] == null) {
+//            return null;
+//        }
+//        else {
+//            Object[] ol = hashTable[hashedKey].getMyArrayList();
+//            for (int i = 0; i < hashTable[hashedKey].size(); i++) {
+//                if (ol[i].equals(key)) return (T) ol[i];
+//            }
+//        }
+//        return null;
+//    }
+
+    public T get(K key) {
+        MyArrayList<T> myArrayList = getHashList(key);
+        if (myArrayList != null) {
+            for (int i = 0; i < myArrayList.size(); i++) {
+                T t = myArrayList.get(i);
+                if (t.toString().equals(key.toString())) { // toString needed to remove unicode values.
+                    return t;
+                }
+            }
+        }
+        return null;
+    }
+
+    public int getHashSize() {
+        return hashSize;
     }
 }
