@@ -66,6 +66,23 @@ public class Triangle implements TriangleInterface {
         return new PointInterface[]{p1,p2,p3};
     }
 
+    public Point[] pointArray() {
+        return new Point[]{p1,p2,p3};
+    }
+
+    Edge[] edgeArray() {
+        return new Edge[]{e1,e2,e3};
+    }
+
+    Edge[] getPointAdjEdges(int i) {
+        switch (i) {
+            case 1: return new Edge[]{e1,e3};
+            case 2: return new Edge[]{e1,e2};
+            case 3: return new Edge[]{e2,e3};
+            default: return null;
+        }
+    }
+
     @Override
     public String toString() {
         if (p1.compareTo(p2) < 0) {

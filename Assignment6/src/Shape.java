@@ -1,3 +1,5 @@
+import java.util.Arrays;
+
 public class Shape implements ShapeInterface
 {
     private int hashTableSize = 15313;
@@ -47,6 +49,7 @@ public class Shape implements ShapeInterface
 
             e1 = oldE1;
 
+            System.out.println("hell");
             foundP1 = true;
             foundP2 = true;
             foundE1 = true;
@@ -55,6 +58,8 @@ public class Shape implements ShapeInterface
         // e2
         Edge oldE2 = edgeHashTable.get(e2.toString());
         if (oldE2 != null) {
+            System.out.println("tttt "+oldE2.getP1() + " " + oldE2.getP1().getPointTriangleList().toString());
+
             if (foundP2) {
                 if (p3.equals(oldE2.getP1())) {
                     p3 = oldE2.getP1();
@@ -74,9 +79,13 @@ public class Shape implements ShapeInterface
 
             e2 = oldE2;
 
+            System.out.println(p2 + "  "+ p2.getPointTriangleList().toString());
+            System.out.println(oldE2.getP1() + " " + oldE2.getP1().getPointTriangleList().toString());
             foundP2 = true;
             foundP3 = true;
             foundE2 = true;
+
+            System.out.println("hell 1   "+p2 + " found : "+ foundP2 + " " + p2.getPointTriangleList().size() + " "+p2.getPointEdgeList().size());
         }
 
         // e3
@@ -114,14 +123,6 @@ public class Shape implements ShapeInterface
             foundE3 = true;
         }
 
-
-        e1.addTriangle(triangle);
-        e2.addTriangle(triangle);
-        e3.addTriangle(triangle);
-        p1.addTriangle(triangle);
-        p2.addTriangle(triangle);
-        p3.addTriangle(triangle);
-
         // if p1,p2,p3 are not found in edges
         if (!foundP1) {
             Point oldP1 = pointHashTable.get(p1.toString());
@@ -146,6 +147,12 @@ public class Shape implements ShapeInterface
             }
         }
 
+        e1.addTriangle(triangle);
+        e2.addTriangle(triangle);
+        e3.addTriangle(triangle);
+        p1.addTriangle(triangle);
+        p2.addTriangle(triangle);
+        p3.addTriangle(triangle);
 
         if (!foundP1) {
             pointHashTable.insert(p1.toString(),p1);
@@ -227,6 +234,10 @@ public class Shape implements ShapeInterface
         triangle.setE2(e2);
         triangle.setE3(e3);
 
+        Point check = pointHashTable.get(pointToString(new float[]{0,-1,0}));
+        System.out.println("p222         " + check + "  " + check.getPointTriangleList().size());
+        System.out.println("Points : "+ p1 + " " + p1.getPointTriangleList().size()+ "    " + p2 + " found : "+ foundP2 + " " + p2.getPointTriangleList().size() + " "+p2.getPointEdgeList().size()+ "    " + p3 + " " + p3.getPointTriangleList().size());
+
         // TODO check collinear
         return true;
     }
@@ -294,6 +305,7 @@ public class Shape implements ShapeInterface
                     index+=1;
                 }
             }
+            // TODO sort
 
 //            System.out.println(res.toString());
             return res;
@@ -339,15 +351,61 @@ public class Shape implements ShapeInterface
         Triangle t = triangleMyHashTable.get(hashKey);
         if (t == null) return null;
         else {
-            MyArrayList<Triangle> tP1 = t.getP1().getPointTriangleList(); // triangles at p1
-            for (int i = 0; i < tP1.size(); i++) {
-                Triangle ti = tP1.get(i);
-                if (ti.getP1().equals(t.getP1())) {
-                    // p1 is shared by e1 and e3
+            MyArrayList<Triangle> resList = new MyArrayList<>();
+
+            Point[] tPoints = t.pointArray();
+            for (int i = 0; i < 3; i++) {
+                System.out.println("tPoint : " + tPoints[i]);
+                MyArrayList<Triangle> pointMyArrayList = tPoints[i].getPointTriangleList();
+                System.out.println("no of tr " + tPoints[i].getPointTriangleList().size());
+
+                for (int j = 0; j < pointMyArrayList.size(); j++) {
+
+                    Triangle tj = pointMyArrayList.get(j);
+                    Point[] tjPoints = tj.pointArray();
+
+                    for (int k = 0; k < 3; k++) {
+
+                        if (tjPoints[k].equals(tPoints[i])) {
+
+                            System.out.println(tj);
+                            System.out.println(tjPoints[k]);
+                            Edge[] ee = tj.getPointAdjEdges(k+1);
+                            System.out.println(Arrays.toString(ee));
+                            Edge[] tPointEdges = t.getPointAdjEdges(i+1);
+                            System.out.println(Arrays.toString(tPointEdges));
+                            if (!ee[0].equals(tPointEdges[0]) && !ee[0].equals(tPointEdges[1])  &&  !ee[1].equals(tPointEdges[0]) && !ee[1].equals(tPointEdges[1])) {
+                                resList.add(tj);
+                            }
+
+                            break;
+                        }
+                    }
                 }
             }
+
+            Edge[] tEdges = t.edgeArray();
+            for (Edge e : tEdges) {
+                MyArrayList<Triangle> eTriangles = e.getEdgeTriangleList();
+                for (int i = 0; i < eTriangles.size(); i++) {
+                    Triangle ti = eTriangles.get(i);
+                    if (!ti.equals(t)) {
+                        resList.add(ti);
+                    }
+                }
+            }
+
+            if (resList.size() == 0) return null;
+
+            TriangleInterface[] res = new TriangleInterface[resList.size()];
+            for (int i = 0; i < resList.size(); i++) {
+                res[i] = resList.get(i);
+            }
+
+            System.out.println("ress  "+ Arrays.toString(res));
+            //TODO sort
+            return res;
         }
-        return new TriangleInterface[0];
     }
 
     @Override
@@ -435,6 +493,14 @@ public class Shape implements ShapeInterface
 
     private String pointToString(float[] point_coordinates) {
         return point_coordinates[0] + "," + point_coordinates[1] + "," + point_coordinates[2];
+    }
+
+    private String edgeToString(float[] edge_coordinates) {
+        Point p1 = new Point(edge_coordinates[0], edge_coordinates[1], edge_coordinates[2]);
+        Point p2 = new Point(edge_coordinates[3], edge_coordinates[4], edge_coordinates[5]);
+        Edge edge = new Edge(p1, p2);
+
+        return edge.toString();
     }
 
     private String triangleToString(float[] triangle_coord) {

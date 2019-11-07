@@ -62,4 +62,15 @@ public class Edge implements EdgeInterface {
             }
         }
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Edge edge = (Edge) o;
+
+        if (P1 != null ? !P1.equals(edge.P1) : edge.P1 != null) return false;
+        return P2 != null ? P2.equals(edge.P2) : edge.P2 == null;
+    }
 }
