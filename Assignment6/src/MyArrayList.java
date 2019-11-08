@@ -38,6 +38,10 @@ public class MyArrayList<T> {
         return (T) myArrayList[index];
     }
 
+    public void set(int index, T data) {
+        myArrayList[index] = data;
+    }
+
     public int getLastIndex() {
         return lastIndex;
     }

@@ -260,7 +260,6 @@ public class Shape implements ShapeInterface
         }
 
         mergeSort(boundaryEdgeArray,0,boundaryEdges-1);
-        //TODO sort
         return boundaryEdgeArray;
     }
 
@@ -272,42 +271,6 @@ public class Shape implements ShapeInterface
         return (x1_x2*x1_x2) + (y1_y2*y1_y2) + (z1_z2*z1_z2);
     }
 
-    private void merge(EdgeInterface[] a, int l, int r) {
-        int m = (l+r)/2;
-        int n1 = m - l + 1;
-        int n2 = r - m;
-        EdgeInterface[] L= new EdgeInterface[n1];
-        EdgeInterface[] R = new EdgeInterface[n2];
-        System.arraycopy(a, l, L, 0, n1);
-
-        for (int j=0; j<n2; ++j) {
-            R[j] = a[m+1+j];
-        }
-        int i = 0, j = 0;
-        int k = l;
-        while (i < n1 && j < n2) {
-            if (edgeSquaredLength(L[i]) <= edgeSquaredLength(R[j])) {
-                a[k] = L[i];
-                i++;
-            }
-            else {
-                a[k] = R[j];
-                j++;
-            }
-            k++;
-        }
-        while (i < n1) {
-            a[k] = L[i];
-            i++;
-            k++;
-        }
-        while (j < n2) {
-            a[k] = R[j];
-            j++;
-            k++;
-        }
-    }
-
     private void mergeSort(EdgeInterface[] a, int l, int r) {
         if (l < r) {
             int m = (l+r)/2;
@@ -317,10 +280,51 @@ public class Shape implements ShapeInterface
         }
     }
 
+    private void merge(EdgeInterface[] arr, int l, int r) {
+        int mid = (l+r)/2;
+        int n1 = mid - l + 1;
+        int n2 = r - mid;
+
+        EdgeInterface[] leftArray = new EdgeInterface[n1];
+        EdgeInterface[] rightArray = new EdgeInterface[n2];
+
+        System.arraycopy(arr, l, leftArray, 0, n1);
+
+        for (int j=0; j<n2; ++j) {
+            rightArray[j] = arr[mid+1+j];
+        }
+
+        int i = 0, j = 0;
+        int k = l;
+
+        while (i < n1 && j < n2) {
+            if (edgeSquaredLength(leftArray[i]) <= edgeSquaredLength(rightArray[j])) {
+                arr[k] = leftArray[i];
+                i++;
+            }
+            else {
+                arr[k] = rightArray[j];
+                j++;
+            }
+            k++;
+        }
+        while (i < n1) {
+            arr[k] = leftArray[i];
+            i++;
+            k++;
+        }
+        while (j < n2) {
+            arr[k] = rightArray[j];
+            j++;
+            k++;
+        }
+    }
+
     @Override
     public int COUNT_CONNECTED_COMPONENTS() {
         int count = 0;
 
+        visitedTriangles = new MyArrayList<>();
         for (int i = 0; i < allTriangleList.size(); i++) {
             Triangle t = allTriangleList.get(i);
 
@@ -340,6 +344,7 @@ public class Shape implements ShapeInterface
 
     private void dfs(Triangle t) {
         t.setVisited(true);
+        visitedTriangles.add(t);
 
         Edge[] edges = t.edgeArray();
 
@@ -362,31 +367,6 @@ public class Shape implements ShapeInterface
             int size = t.getE1().triangleListSize()+t.getE2().triangleListSize()+t.getE3().triangleListSize()-3;
 
             TriangleInterface[] res = new TriangleInterface[size];
-//            int index = 0;
-//
-//            for (int i = 0; i < t.getE1().triangleListSize(); i++) {
-//                Triangle ti = t.getE1().getEdgeTriangleList().get(i);
-//                if (!ti.toString().equals(t.toString())) {
-//                    res[index] = ti;
-//                    index+=1;
-//                }
-//                res[i] = t.getE1().getEdgeTriangleList().get(i);
-//            }
-//
-//            for (int i = 0; i < t.getE2().triangleListSize(); i++) {
-//                Triangle ti = t.getE2().getEdgeTriangleList().get(i);
-//                if (!ti.toString().equals(t.toString())) {
-//                    res[index] = ti;
-//                    index+=1;
-//                }
-//            }
-//            for (int i = 0; i < t.getE3().triangleListSize(); i++) {
-//                Triangle ti = t.getE3().getEdgeTriangleList().get(i);
-//                if (!ti.toString().equals(t.toString())) {
-//                    res[index] = ti;
-//                    index+=1;
-//                }
-//            }
 
             int i = 0; int i1 = 0; int i2 = 0; int i3 = 0;
 
@@ -604,53 +584,311 @@ public class Shape implements ShapeInterface
         Triangle t = triangleMyHashTable.get(hashKey);
         if (t == null) return null;
         else {
-            MyArrayList<Triangle> resList = new MyArrayList<>();
+//            MyArrayList<Triangle> resList = new MyArrayList<>();
+//
+//            Point[] tPoints = t.pointArray();
+//            for (int i = 0; i < 3; i++) {
+//                MyArrayList<Triangle> pointMyArrayList = tPoints[i].getPointTriangleList();
+//
+//                for (int j = 0; j < pointMyArrayList.size(); j++) {
+//
+//                    Triangle tj = pointMyArrayList.get(j);
+//                    Point[] tjPoints = tj.pointArray();
+//
+//                    for (int k = 0; k < 3; k++) {
+//
+//                        if (tjPoints[k].equals(tPoints[i])) {
+//
+//                            Edge[] ee = tj.getPointAdjEdges(k+1);
+//                            Edge[] tPointEdges = t.getPointAdjEdges(i+1);
+//                            if (!ee[0].toString().equals(tPointEdges[0].toString()) && !ee[0].toString().equals(tPointEdges[1].toString())  &&  !ee[1].toString().equals(tPointEdges[0].toString()) && !ee[1].toString().equals(tPointEdges[1].toString())) {
+//                                resList.add(tj);
+//                            }
+//
+//                            break;
+//                        }
+//                    }
+//                }
+//            }
+//
+//            Edge[] tEdges = t.edgeArray();
+//            for (Edge e : tEdges) {
+//                MyArrayList<Triangle> eTriangles = e.getEdgeTriangleList();
+//                for (int i = 0; i < eTriangles.size(); i++) {
+//                    Triangle ti = eTriangles.get(i);
+//                    if (!ti.toString().equals(t.toString())) {
+//                        resList.add(ti);
+//                    }
+//                }
+//            }
+//
+//            if (resList.size() == 0) return null;
+//
+//            TriangleInterface[] res = new TriangleInterface[resList.size()];
+//            for (int i = 0; i < resList.size(); i++) {
+//                res[i] = resList.get(i);
+//            }
 
-            Point[] tPoints = t.pointArray();
-            for (int i = 0; i < 3; i++) {
-                MyArrayList<Triangle> pointMyArrayList = tPoints[i].getPointTriangleList();
+//            System.out.println("res:  "+ Arrays.toString(res));
+            //TODO sort
+            Point p1 = t.getP1();
+            Point p2 = t.getP2();
+            Point p3 = t.getP3();
+            Edge e1 = t.getE1();
+            Edge e2 = t.getE2();
+            Edge e3 = t.getE3();
 
-                for (int j = 0; j < pointMyArrayList.size(); j++) {
+            int size = p1.getPointTriangleList().size() + p2.getPointTriangleList().size() + p3.getPointTriangleList().size() - e1.triangleListSize() - e2.triangleListSize() - e3.triangleListSize();
+            TriangleInterface[] res = new TriangleInterface[size];
 
-                    Triangle tj = pointMyArrayList.get(j);
-                    Point[] tjPoints = tj.pointArray();
+            int i = 0; int i1 = 0; int i2 = 0; int i3 = 0;
 
-                    for (int k = 0; k < 3; k++) {
+            while (i < size) {
 
-                        if (tjPoints[k].equals(tPoints[i])) {
+                boolean i1Maxed = i1 >= p1.getPointTriangleList().size();
+                boolean i2Maxed = i2 >= p2.getPointTriangleList().size();
+                boolean i3Maxed = i3 >= p3.getPointTriangleList().size();
 
-                            Edge[] ee = tj.getPointAdjEdges(k+1);
-                            Edge[] tPointEdges = t.getPointAdjEdges(i+1);
-                            if (!ee[0].toString().equals(tPointEdges[0].toString()) && !ee[0].toString().equals(tPointEdges[1].toString())  &&  !ee[1].toString().equals(tPointEdges[0].toString()) && !ee[1].toString().equals(tPointEdges[1].toString())) {
-                                resList.add(tj);
+                if (i1Maxed) { // i1 maxed
+                    if (i2Maxed) { // i2 maxed
+                        // i3
+                        Triangle t3 = p3.getPointTriangleList().get(i3);
+
+                        boolean b3;
+                        if (t3.getP1().equals(p3)) {
+                            b3 = !(t3.getP2().equals(p1) || t3.getP2().equals(p2) || t3.getP3().equals(p1) || t3.getP3().equals(p2));
+                        }
+                        else if (t3.getP2().equals(p3)) {
+                            b3 = !(t3.getP1().equals(p1) || t3.getP1().equals(p2) || t3.getP3().equals(p1) || t3.getP3().equals(p2));
+                        }
+                        else b3 = !(t3.getP1().equals(p1) || t3.getP1().equals(p2) || t3.getP2().equals(p1) || t3.getP2().equals(p2));
+
+                        if (b3) {
+                            res[i] = t3;
+                            i++;
+                        }
+                        i3++;
+                    }
+                    else {
+                        if (i3Maxed) { // i3 maxed
+                            // i2
+                            Triangle t2 = p2.getPointTriangleList().get(i2);
+
+                            boolean b2;
+                            if (t2.getP1().equals(p2)) {
+                                b2 = !(t2.getP2().equals(p1) || t2.getP3().equals(p1));
                             }
+                            else if (t2.getP2().equals(p3)) {
+                                b2 = !(t2.getP1().equals(p1) || t2.getP3().equals(p1));
+                            }
+                            else b2 = !(t2.getP1().equals(p1) || t2.getP2().equals(p1));
 
-                            break;
+                            if (b2) {
+                                res[i] = t2;
+                                i++;
+                            }
+                            i2++;
+                        }
+                        else {
+                            // i2 i3
+                            Triangle t2 = p2.getPointTriangleList().get(i2);
+                            Triangle t3 = p3.getPointTriangleList().get(i3);
+
+                            boolean b3;
+                            if (t3.getP1().equals(p3)) {
+                                b3 = !(t3.getP2().equals(p1) || t3.getP2().equals(p2) || t3.getP3().equals(p1) || t3.getP3().equals(p2));
+                            }
+                            else if (t3.getP2().equals(p3)) {
+                                b3 = !(t3.getP1().equals(p1) || t3.getP1().equals(p2) || t3.getP3().equals(p1) || t3.getP3().equals(p2));
+                            }
+                            else b3 = !(t3.getP1().equals(p1) || t3.getP1().equals(p2) || t3.getP2().equals(p1) || t3.getP2().equals(p2));
+
+                            boolean b2;
+                            if (t2.getP1().equals(p2)) {
+                                b2 = !(t2.getP2().equals(p1) || t2.getP3().equals(p1));
+                            }
+                            else if (t2.getP2().equals(p3)) {
+                                b2 = !(t2.getP1().equals(p1) || t2.getP3().equals(p1));
+                            }
+                            else b2 = !(t2.getP1().equals(p1) || t2.getP2().equals(p1));
+
+                            if (t2.getTimeStamp() <= t3.getTimeStamp()) {
+                                if (b2) {
+                                    res[i] = t2;
+                                    i++;
+                                }
+                                i2++;
+                            }
+                            else {
+                                if (b3) {
+                                    res[i] = t3;
+                                    i++;
+                                }
+                                i3++;
+                            }
+                        }
+                    }
+                }
+                else {
+                    if (i2Maxed) { // i2 maxed
+                        if (i3Maxed) { // i3 maxed
+                            // i1
+                            Triangle t1 = p1.getPointTriangleList().get(i1);
+
+                            boolean b1 = !t1.equals(t);
+
+                            if (b1) {
+                                res[i] = t1;
+                                i++;
+                            }
+                            i1++;
+                        }
+                        else {
+                            // i1 i3
+                            Triangle t1 = p1.getPointTriangleList().get(i1);
+                            Triangle t3 = p3.getPointTriangleList().get(i3);
+
+                            if (t1.getTimeStamp() < t3.getTimeStamp()) {
+                                boolean b1 = !t1.equals(t);
+
+                                if (b1) {
+                                    res[i] = t1;
+                                    i++;
+                                }
+                                i1++;
+                            }
+                            else {
+                                boolean b3;
+                                if (t3.getP1().equals(p3)) {
+                                    b3 = !(t3.getP2().equals(p1) || t3.getP2().equals(p2) || t3.getP3().equals(p1) || t3.getP3().equals(p2));
+                                }
+                                else if (t3.getP2().equals(p3)) {
+                                    b3 = !(t3.getP1().equals(p1) || t3.getP1().equals(p2) || t3.getP3().equals(p1) || t3.getP3().equals(p2));
+                                }
+                                else b3 = !(t3.getP1().equals(p1) || t3.getP1().equals(p2) || t3.getP2().equals(p1) || t3.getP2().equals(p2));
+
+                                if (b3) {
+                                    res[i] = t3;
+                                    i++;
+                                }
+                                i3++;
+                            }
+                        }
+                    }
+                    else {
+                        if (i3Maxed) { // i3 maxed
+                            // i1 i2
+                            Triangle t1 = p1.getPointTriangleList().get(i1);
+                            Triangle t2 = p2.getPointTriangleList().get(i2);
+
+                            if (t1.getTimeStamp() < t2.getTimeStamp()) {
+                                boolean b1 = !t1.equals(t);
+
+                                if (b1) {
+                                    res[i] = t1;
+                                    i++;
+                                }
+                                i1++;
+                            }
+                            else {
+                                boolean b2;
+                                if (t2.getP1().equals(p2)) {
+                                    b2 = !(t2.getP2().equals(p1) || t2.getP3().equals(p1));
+                                }
+                                else if (t2.getP2().equals(p3)) {
+                                    b2 = !(t2.getP1().equals(p1) || t2.getP3().equals(p1));
+                                }
+                                else b2 = !(t2.getP1().equals(p1) || t2.getP2().equals(p1));
+
+                                if (b2) {
+                                    res[i] = t2;
+                                    i++;
+                                }
+                                i2++;
+                            }
+                        }
+                        else {
+                            // i1 i2 i3
+                            Triangle t1 = p1.getPointTriangleList().get(i1);
+                            Triangle t2 = p2.getPointTriangleList().get(i2);
+                            Triangle t3 = p3.getPointTriangleList().get(i3);
+
+                            boolean b1 = !t1.equals(t);
+
+                            boolean b2;
+                            if (t2.getP1().equals(p2)) {
+                                b2 = !(t2.getP2().equals(p1) || t2.getP3().equals(p1));
+                            }
+                            else if (t2.getP2().equals(p3)) {
+                                b2 = !(t2.getP1().equals(p1) || t2.getP3().equals(p1));
+                            }
+                            else b2 = !(t2.getP1().equals(p1) || t2.getP2().equals(p1));
+
+                            boolean b3;
+                            if (t3.getP1().equals(p3)) {
+                                b3 = !(t3.getP2().equals(p1) || t3.getP2().equals(p2) || t3.getP3().equals(p1) || t3.getP3().equals(p2));
+                            }
+                            else if (t3.getP2().equals(p3)) {
+                                b3 = !(t3.getP1().equals(p1) || t3.getP1().equals(p2) || t3.getP3().equals(p1) || t3.getP3().equals(p2));
+                            }
+                            else b3 = !(t3.getP1().equals(p1) || t3.getP1().equals(p2) || t3.getP2().equals(p1) || t3.getP2().equals(p2));
+
+                            if (t1.getTimeStamp() <= t2.getTimeStamp()) {
+                                if (t2.getTimeStamp() <= t3.getTimeStamp()) {
+                                    if (b1) {
+                                        res[i] = t1;
+                                        i++;
+                                    }
+                                    i1++;
+                                }
+                                else {
+                                    if (t3.getTimeStamp() <= t1.getTimeStamp()) {
+                                        if (b3) {
+                                            res[i] = t3;
+                                            i++;
+                                        }
+                                        i3++;
+                                    }
+                                    else {
+                                        if (b1) {
+                                            res[i] = t1;
+                                            i++;
+                                        }
+                                        i1++;
+                                    }
+                                }
+                            }
+                            else {
+                                if (t1.getTimeStamp() <= t3.getTimeStamp()) {
+                                    if (b2) {
+                                        res[i] = t2;
+                                        i++;
+                                    }
+                                    i2++;
+                                }
+                                else {
+                                    if (t3.getTimeStamp() <= t2.getTimeStamp()) {
+                                        if (b3) {
+                                            res[i] = t3;
+                                            i++;
+                                        }
+                                        i3++;
+                                    }
+                                    else {
+                                        if (b2) {
+                                            res[i] = t2;
+                                            i++;
+                                        }
+                                        i2++;
+                                    }
+                                }
+                            }
                         }
                     }
                 }
             }
 
-            Edge[] tEdges = t.edgeArray();
-            for (Edge e : tEdges) {
-                MyArrayList<Triangle> eTriangles = e.getEdgeTriangleList();
-                for (int i = 0; i < eTriangles.size(); i++) {
-                    Triangle ti = eTriangles.get(i);
-                    if (!ti.toString().equals(t.toString())) {
-                        resList.add(ti);
-                    }
-                }
-            }
-
-            if (resList.size() == 0) return null;
-
-            TriangleInterface[] res = new TriangleInterface[resList.size()];
-            for (int i = 0; i < resList.size(); i++) {
-                res[i] = resList.get(i);
-            }
-
-//            System.out.println("res:  "+ Arrays.toString(res));
-            //TODO sort
+//            System.out.println(Arrays.toString(res));
             return res;
         }
     }
@@ -775,7 +1013,73 @@ public class Shape implements ShapeInterface
 
     @Override
     public int MAXIMUM_DIAMETER() {
-        return 0;
+
+        MyArrayList<Triangle> componentMaxTriangles = new MyArrayList<>(); // arrayList containing all triangles of the component with the max no. of triangles
+
+        for (int i = 0; i < allTriangleList.size(); i++) {
+            Triangle t = allTriangleList.get(i);
+
+            if (!t.isVisited()) {
+                visitedTriangles = new MyArrayList<>();
+                dfs(t);
+                if (visitedTriangles.size() > componentMaxTriangles.size()) {
+                    componentMaxTriangles = visitedTriangles;
+                }
+            }
+        }
+
+        // un-mark visited triangles
+        for (int i = 0; i < allTriangleList.size(); i++) {
+            Triangle t = allTriangleList.get(i);
+            t.setVisited(false);
+        }
+
+        return diameter(componentMaxTriangles);
+    }
+
+    private int distance;
+
+    private int diameter(MyArrayList<Triangle> componentTriangles) {
+
+        int maxDistance = 0;
+
+        for (int i = 0; i < componentTriangles.size(); i++) {
+            Triangle t = componentTriangles.get(i);
+
+            distance = 0;
+            bfs(t);
+            if (distance > maxDistance) {
+                maxDistance = distance;
+            }
+        }
+        return maxDistance;
+    }
+
+    private void bfs(Triangle triangle) {
+        Queue<Triangle> queue = new Queue<>();
+        triangle.setVisited(true);
+        visitedTriangles.add(triangle);
+        queue.enqueue(triangle);
+
+        while (!queue.isEmpty()) {
+            Triangle t = queue.dequeue();
+
+            Edge[] edges = t.edgeArray();
+
+            boolean hasNeighbour = false;
+            for (int j = 0; j < 3; j++) {
+                for (int i = 0; i < edges[j].triangleListSize(); i++) {
+                    Triangle ti = edges[j].getEdgeTriangleList().get(i);
+                    if (!ti.isVisited()) {
+                        System.out.println(ti);
+                        hasNeighbour = true;
+                        queue.enqueue(ti);
+                    }
+                }
+            }
+
+            if (hasNeighbour) distance+=1;
+        }
     }
 
     @Override
@@ -803,6 +1107,8 @@ public class Shape implements ShapeInterface
             t.getP3().setVisited(false);
         }
 
+        mergeSort1(temp,0,temp.size()-1);
+
         PointInterface[] res = new PointInterface[temp.size()];
 
         for (int i = 0; i < temp.size(); i++) {
@@ -810,8 +1116,58 @@ public class Shape implements ShapeInterface
         }
 
 //        System.out.println(Arrays.toString(res));
-        // TODO sort
         return res;
+    }
+
+    private void mergeSort1(MyArrayList<Point> a, int l, int r) {
+        if (l < r) {
+            int m = (l+r)/2;
+            mergeSort1(a, l, m);
+            mergeSort1(a, m+1, r);
+            merge1(a, l, r);
+        }
+    }
+
+    private void merge1(MyArrayList<Point> arr, int l, int r) {
+        int mid = (l+r)/2;
+        int n1 = mid - l + 1;
+        int n2 = r - mid;
+
+        Point[] leftArray = new Point[n1];
+        Point[] rightArray = new Point[n2];
+
+        for (int i=0; i<n1; ++i) {
+            leftArray[i] = arr.get(l+i);
+        }
+
+        for (int j=0; j<n2; ++j) {
+            rightArray[j] = arr.get(mid+1+j);
+        }
+
+        int i = 0, j = 0;
+        int k = l;
+
+        while (i < n1 && j < n2) {
+            if (leftArray[i].compareTo(rightArray[j]) <= 0) {
+                arr.set(k, leftArray[i]);
+                i++;
+            }
+            else {
+                arr.set(k, rightArray[j]);
+                j++;
+            }
+            k++;
+        }
+        while (i < n1) {
+            arr.set(k, leftArray[k]);
+            i++;
+            k++;
+        }
+        while (j < n2) {
+            arr.set(k, rightArray[j]);
+            j++;
+            k++;
+        }
     }
 
     @Override
@@ -834,7 +1190,7 @@ public class Shape implements ShapeInterface
                 t.getP3().setVisited(false);
             }
 
-            System.out.println(sum[0]/totalComponentPoints + " " + sum[1]/totalComponentPoints + " " + sum[2]/totalComponentPoints);
+//            System.out.println(sum[0]/totalComponentPoints + " " + sum[1]/totalComponentPoints + " " + sum[2]/totalComponentPoints);
             return new Point(sum[0]/totalComponentPoints,sum[1]/totalComponentPoints,sum[2]/totalComponentPoints);
         }
     }
