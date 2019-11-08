@@ -3,14 +3,17 @@ public class Triangle implements TriangleInterface {
     private Edge e1; // between p1 p2
     private Edge e2; // between p2 p3
     private Edge e3; // between p1 p3
+    private int timeStamp;
+    private boolean visited = false;
 
-    public Triangle(Point p1, Point p2, Point p3, Edge e1, Edge e2, Edge e3) {
+    public Triangle(Point p1, Point p2, Point p3, Edge e1, Edge e2, Edge e3, int timeStamp) {
         this.p1 = p1;
         this.p2 = p2;
         this.p3 = p3;
         this.e1 = e1;
         this.e2 = e2;
         this.e3 = e3;
+        this.timeStamp = timeStamp;
     }
 
     public void setP1(Point p1) {
@@ -37,6 +40,14 @@ public class Triangle implements TriangleInterface {
         this.e3 = e3;
     }
 
+    public boolean isVisited() {
+        return visited;
+    }
+
+    public void setVisited(boolean visited) {
+        this.visited = visited;
+    }
+
     public Point getP1() {
         return p1;
     }
@@ -59,6 +70,10 @@ public class Triangle implements TriangleInterface {
 
     public Edge getE3() {
         return e3;
+    }
+
+    public int getTimeStamp() {
+        return timeStamp;
     }
 
     @Override
@@ -110,8 +125,6 @@ public class Triangle implements TriangleInterface {
 
         Triangle triangle = (Triangle) o;
 
-        if (p1 != null ? !p1.equals(triangle.p1) : triangle.p1 != null) return false;
-        if (p2 != null ? !p2.equals(triangle.p2) : triangle.p2 != null) return false;
-        return p3 != null ? p3.equals(triangle.p3) : triangle.p3 == null;
+        return timeStamp == triangle.timeStamp;
     }
 }

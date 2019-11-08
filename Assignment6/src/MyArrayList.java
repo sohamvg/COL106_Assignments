@@ -1,5 +1,3 @@
-import java.util.Arrays;
-
 public class MyArrayList<T> {
     private Object[] myArrayList;
     private int lastIndex;
@@ -38,13 +36,6 @@ public class MyArrayList<T> {
 
     public T get(int index) {
         return (T) myArrayList[index];
-    }
-
-    @Override
-    public String toString() {
-        return "MyArrayList{" +
-                "myArrayList=" + Arrays.toString(myArrayList) +
-                '}';
     }
 
     public int getLastIndex() {

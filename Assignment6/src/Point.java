@@ -1,5 +1,6 @@
 public class Point implements PointInterface, Comparable<Point> {
     private float x,y,z;
+    private boolean visited = false;
     private MyArrayList<Edge> pointEdgeList = new MyArrayList<>();
     private MyArrayList<Triangle> pointTriangleList = new MyArrayList<>();
     private MyArrayList<Point> neighbourPointList = new MyArrayList<>();
@@ -23,6 +24,14 @@ public class Point implements PointInterface, Comparable<Point> {
     @Override
     public float getZ() {
         return z;
+    }
+
+    public boolean isVisited() {
+        return visited;
+    }
+
+    public void setVisited(boolean visited) {
+        this.visited = visited;
     }
 
     @Override
