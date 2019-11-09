@@ -1,17 +1,12 @@
-public class Queue<V>{
+public class MyQueue<V>{
 
     private MyArrayList<V> queue;
     private int front;
 
-    public Queue() {
+    public MyQueue() {
         this.front = 0;
         queue = new MyArrayList<>();
     }
-
-    public int size() {
-        return queue.size();
-    }
-
     int getCurrentSize() {
         return queue.size()-front;
     }
