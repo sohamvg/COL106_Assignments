@@ -1,11 +1,10 @@
 public class Shape implements ShapeInterface
 {
-    private int hashTableSize = 15313;
+    private int hashTableSize = 19997;
     private int meshType = 1;
     private int boundaryEdges = 0;
     private int time = 0;
 
-//    TODO driver
     private MyHashTable<String, Point> pointHashTable = new MyHashTable<>(hashTableSize);
     private MyHashTable<String, Edge> edgeHashTable = new MyHashTable<>(hashTableSize);
     private MyHashTable<String, Triangle> triangleMyHashTable = new MyHashTable<>(hashTableSize);
@@ -171,11 +170,6 @@ public class Shape implements ShapeInterface
                 pointHashTable.insert(p3.toString(),p3);
             }
 
-//        System.out.println("e1 "+e1 + " " + e1.triangleListSize());
-//        System.out.println("e2 "+e2 + " " + e2.triangleListSize());
-//        System.out.println("e3 "+e3 + " " + e3.triangleListSize());
-//        System.out.println(boundaryEdges);
-
             if (meshType != 3) {
                 if (boundaryEdges == 3 && foundE1 && foundE2 && foundE3) meshType = 1;
                 else meshType = 2;
@@ -325,7 +319,7 @@ public class Shape implements ShapeInterface
             Triangle t = allTriangleList.get(i);
 
             if (!t.isVisited()) {
-                dfsAllTriangles(t);
+                bfsAllTriangles(t);
                 count+=1;
             }
         }
@@ -348,6 +342,30 @@ public class Shape implements ShapeInterface
                 Triangle ti = edges[j].getEdgeTriangleList().get(i);
                 if (!ti.isVisited()) {
                     dfsAllTriangles(ti);
+                }
+            }
+        }
+    }
+
+    private void bfsAllTriangles(Triangle t1) {
+
+        MyQueue<Triangle> queue = new MyQueue<>();
+        t1.setVisited(true);
+
+        queue.enqueue(t1);
+
+        while (!queue.isEmpty()) {
+            Triangle t = queue.dequeue();
+
+            Edge[] edges = t.edgeArray();
+
+            for (int j = 0; j < 3; j++) {
+                for (int i = 0; i < edges[j].triangleListSize(); i++) {
+                    Triangle ti = edges[j].getEdgeTriangleList().get(i);
+                    if (!ti.isVisited()) {
+                        ti.setVisited(true);
+                        queue.enqueue(ti);
+                    }
                 }
             }
         }
@@ -580,7 +598,6 @@ public class Shape implements ShapeInterface
         Triangle t = triangleMyHashTable.get(hashKey);
         if (t == null) return null;
         else {
-            //TODO sort
             Point p1 = t.getP1();
             Point p2 = t.getP2();
             Point p3 = t.getP3();
@@ -907,27 +924,26 @@ public class Shape implements ShapeInterface
         }
     }
 
-    private boolean foundConnection = false;
-
     @Override
     public boolean IS_CONNECTED(float[] triangle_coord_1, float[] triangle_coord_2) {
-        foundConnection = false;
 
         String hashKey = triangleToString(triangle_coord_1);
         Triangle t = triangleMyHashTable.get(hashKey);
 
         MyArrayList<Triangle> temp = new MyArrayList<>();
-        dfsString(t, triangleToString(triangle_coord_2), temp);
+        boolean[] foundConnection = new boolean[]{false};
+
+        bfsString(t, triangleToString(triangle_coord_2), temp, foundConnection);
 
         // un-mark visited triangles
         for (int i = 0; i < temp.size(); i++) {
             temp.get(i).setVisited(false);
         }
 
-        return foundConnection;
+        return foundConnection[0];
     }
 
-    private void dfsString(Triangle t, String triangleToString, MyArrayList<Triangle> myArrayList) {
+    private void dfsString(Triangle t, String triangleToString, MyArrayList<Triangle> myArrayList, boolean[] foundConnection) {
        t.setVisited(true);
        myArrayList.add(t);
 
@@ -938,10 +954,41 @@ public class Shape implements ShapeInterface
                 Triangle ti = edges[j].getEdgeTriangleList().get(i);
                 if (!ti.isVisited()) {
                     if (ti.toString().equals(triangleToString)) {
-                        foundConnection = true;
+                        foundConnection[0] = true;
                         return;
                     }
-                    dfsString(ti, triangleToString, myArrayList);
+                    dfsString(ti, triangleToString, myArrayList, foundConnection);
+                }
+            }
+        }
+    }
+
+    private void bfsString(Triangle t1, String triangleToString, MyArrayList<Triangle> myArrayList, boolean[] foundConnection) {
+
+        MyQueue<Triangle> queue = new MyQueue<>();
+        t1.setVisited(true);
+        myArrayList.add(t1);
+
+        queue.enqueue(t1);
+
+        while (!queue.isEmpty()) {
+            Triangle t = queue.dequeue();
+
+            Edge[] edges = t.edgeArray();
+
+            for (int j = 0; j < 3; j++) {
+                for (int i = 0; i < edges[j].triangleListSize(); i++) {
+                    Triangle ti = edges[j].getEdgeTriangleList().get(i);
+                    if (!ti.isVisited()) {
+                        if (ti.toString().equals(triangleToString)) {
+                            foundConnection[0] = true;
+                            return;
+                        }
+
+                        ti.setVisited(true);
+                        myArrayList.add(ti);
+                        queue.enqueue(ti);
+                    }
                 }
             }
         }
@@ -971,7 +1018,8 @@ public class Shape implements ShapeInterface
 
             if (!t.isVisited()) {
                 MyArrayList<Triangle> temp = new MyArrayList<>();
-                dfs(t, temp);
+//                dfs(t, temp);
+                bfs(t, temp);
                 if (temp.size() > componentMaxTriangles.size()) {
                     componentMaxTriangles = temp;
                 }
@@ -982,11 +1030,9 @@ public class Shape implements ShapeInterface
         for (int i = 0; i < allTriangleList.size(); i++) {
             Triangle t = allTriangleList.get(i);
             t.setVisited(false);
+            t.level = 0;
         }
 
-//        int res= diameter(componentMaxTriangles);
-//        System.out.println(res);
-//        return res;
         return diameter(componentMaxTriangles);
     }
 
@@ -1006,77 +1052,52 @@ public class Shape implements ShapeInterface
         }
     }
 
-    private int diameter(MyArrayList<Triangle> componentTriangles) {
-        int maxDistance = 0;
-
-//        for (int i = 0; i < componentTriangles.size(); i++) {
-//            Triangle t = componentTriangles.get(i);
-//
-//            int distance = bfs(t);
-//
-//            for (int j = 0; j < componentTriangles.size(); j++) {
-//                componentTriangles.get(j).setVisited(false);
-//            }
-//
-//            if (distance > maxDistance) {
-//                maxDistance = distance;
-//            }
-//        }
-
-        for (int i = 0; i < componentTriangles.size()-1; i++) {
-            for (int j = i+1; j < componentTriangles.size(); j++) {
-                int shortestPathLength = bfsShortestPath(componentTriangles.get(i), componentTriangles.get(j));
-                if (shortestPathLength > maxDistance) {
-                    maxDistance = shortestPathLength;
-                }
-            }
-        }
-
-//        System.out.println("mxdist "+maxDistance);
-        return maxDistance;
-    }
-
-//    private int bfs(Triangle triangle) {
-//        int distance = 0;
-//        MyQueue<Triangle> queue = new MyQueue<>();
-//        triangle.setVisited(true);
-//
-//        System.out.println("bfs :"+triangle);
-//        queue.enqueue(triangle);
-//
-//        while (!queue.isEmpty()) {
-//
-//            System.out.println("q "+queue.getCurrentSize());
-//            Triangle t = queue.dequeue();
-//            Edge[] edges = t.edgeArray();
-//
-//            boolean hasNeighbour = false;
-//
-//            for (int j = 0; j < 3; j++) {
-//                for (int i = 0; i < edges[j].triangleListSize(); i++) {
-//                    Triangle ti = edges[j].getEdgeTriangleList().get(i);
-//                    if (!ti.isVisited()) {
-//                        System.out.println("nn "+ti);
-//                        hasNeighbour = true;
-//                        ti.setVisited(true);
-//                        queue.enqueue(ti);
-//                    }
-//                }
-//            }
-//
-//            if (hasNeighbour) distance+=1;
-//        }
-//        System.out.println("compkd "+distance + "tr "+triangle);
-//        return distance;
-//    }
-
-    private int bfsShortestPath(Triangle t1, Triangle t2) {
-//        System.out.println("t1 " + t1 + "t2 "+ t2);
-
-        int distance = 0;
+    private void bfs(Triangle t1, MyArrayList<Triangle> myArrayList) {
 
         MyQueue<Triangle> queue = new MyQueue<>();
         t1.setVisited(true);
+        myArrayList.add(t1);
+
+        queue.enqueue(t1);
+
+        while (!queue.isEmpty()) {
+            Triangle t = queue.dequeue();
+
+            Edge[] edges = t.edgeArray();
+
+            for (int j = 0; j < 3; j++) {
+                for (int i = 0; i < edges[j].triangleListSize(); i++) {
+                    Triangle ti = edges[j].getEdgeTriangleList().get(i);
+                    if (!ti.isVisited()) {
+                        ti.setVisited(true);
+                        myArrayList.add(ti);
+                        queue.enqueue(ti);
+                    }
+                }
+            }
+        }
+    }
+
+    private int diameter(MyArrayList<Triangle> componentTriangles) {
+        int maxDistance = 0;
+
+        for (int i = 0; i < componentTriangles.size(); i++) {
+            int s = bfsShortestPath(componentTriangles.get(i));
+            if (s > maxDistance) {
+                maxDistance = s;
+            }
+        }
+
+        return maxDistance;
+    }
+
+    private int bfsShortestPath(Triangle t1) {
+
+        MyQueue<Triangle> queue = new MyQueue<>();
+        t1.setVisited(true);
+
+        t1.level = 0;
+        int f = 0;
 
         queue.enqueue(t1);
 
@@ -1084,31 +1105,30 @@ public class Shape implements ShapeInterface
 
             Triangle t = queue.dequeue();
 
+            int max1 = t.level;
+
             Edge[] edges = t.edgeArray();
 
-            boolean hasNeighbour = false;
-
-            allLoop:
             for (int j = 0; j < 3; j++) {
                 for (int i = 0; i < edges[j].triangleListSize(); i++) {
                     Triangle ti = edges[j].getEdgeTriangleList().get(i);
                     if (!ti.isVisited()) {
-                        if (ti.equals(t2)) {
-//                            f = distance;
-                            break allLoop;
+                        ti.level=t.level+1;
+
+                        if (ti.level > max1) {
+                            max1 = ti.level;
                         }
 
-                        hasNeighbour = true;
+                        if (max1 > f) f = max1;
+
                         ti.setVisited(true);
                         queue.enqueue(ti);
                     }
                 }
             }
-            if (hasNeighbour) distance+=1;
         }
 
-//        System.out.println("dis " +distance + " ");
-        return distance;
+        return f;
     }
 
     @Override
@@ -1121,7 +1141,7 @@ public class Shape implements ShapeInterface
             if (!t.isVisited()) {
                 float[] sum = new float[]{0,0,0};
                 int[] totalComponentPoints = new int[]{0};
-                dfsSum2(t, sum, totalComponentPoints);
+                bfsSum2(t, sum, totalComponentPoints);
                 Point p = new Point(sum[0]/totalComponentPoints[0],sum[1]/totalComponentPoints[0],sum[2]/totalComponentPoints[0]);
                 temp.add(p);
             }
@@ -1176,6 +1196,56 @@ public class Shape implements ShapeInterface
         }
     }
 
+    private void bfsSum2(Triangle t1, float[] sum, int[] totalComponentPoints) {
+
+        MyQueue<Triangle> queue = new MyQueue<>();
+        t1.setVisited(true);
+
+        Point[] points = t1.pointArray();
+
+        for (int i = 0; i < 3; i++) {
+            if (!points[i].isVisited()) {
+                points[i].setVisited(true);
+                totalComponentPoints[0]+=1;
+
+                sum[0] = sum[0] + points[i].getX();
+                sum[1] = sum[1] + points[i].getY();
+                sum[2] = sum[2] + points[i].getZ();
+            }
+        }
+
+        queue.enqueue(t1);
+
+        while (!queue.isEmpty()) {
+            Triangle t = queue.dequeue();
+
+            Edge[] edges = t.edgeArray();
+
+            for (int j = 0; j < 3; j++) {
+                for (int i = 0; i < edges[j].triangleListSize(); i++) {
+                    Triangle ti = edges[j].getEdgeTriangleList().get(i);
+                    if (!ti.isVisited()) {
+                        ti.setVisited(true);
+
+                        Point[] points1 = ti.pointArray();
+
+                        for (int k = 0; k < 3; k++) {
+                            if (!points1[k].isVisited()) {
+                                points1[k].setVisited(true);
+                                totalComponentPoints[0]+=1;
+
+                                sum[0] = sum[0] + points[i].getX();
+                                sum[1] = sum[1] + points[i].getY();
+                                sum[2] = sum[2] + points[i].getZ();
+                            }
+                        }
+
+                        queue.enqueue(ti);
+                    }
+                }
+            }
+        }
+    }
 
     private void mergeSort1(MyArrayList<Point> a, int l, int r) {
         if (l < r) {
@@ -1217,7 +1287,7 @@ public class Shape implements ShapeInterface
             k++;
         }
         while (i < n1) {
-            arr.set(k, leftArray[k]);
+            arr.set(k, leftArray[i]);
             i++;
             k++;
         }
@@ -1237,7 +1307,7 @@ public class Shape implements ShapeInterface
             MyArrayList<Triangle> temp = new MyArrayList<>();
             float[] sum = new float[]{0,0,0};
             int[] totalComponentPoints = new int[]{0};
-            dfsSum1(p.getPointTriangleList().get(0), temp, sum, totalComponentPoints);
+            bfsSum1(p.getPointTriangleList().get(0), temp, sum, totalComponentPoints);
 
             // un-mark visited triangles and points
             for (int i = 0; i < temp.size(); i++) {
@@ -1282,6 +1352,60 @@ public class Shape implements ShapeInterface
         }
     }
 
+    private void bfsSum1(Triangle t1, MyArrayList<Triangle> myArrayList, float[] sum, int[] totalComponentPoints) {
+
+        MyQueue<Triangle> queue = new MyQueue<>();
+        t1.setVisited(true);
+        myArrayList.add(t1);
+
+        Point[] points = t1.pointArray();
+
+        for (int i = 0; i < 3; i++) {
+            if (!points[i].isVisited()) {
+                points[i].setVisited(true);
+                totalComponentPoints[0]+=1;
+
+                sum[0] = sum[0] + points[i].getX();
+                sum[1] = sum[1] + points[i].getY();
+                sum[2] = sum[2] + points[i].getZ();
+            }
+        }
+
+        queue.enqueue(t1);
+
+        while (!queue.isEmpty()) {
+            Triangle t = queue.dequeue();
+
+            Edge[] edges = t.edgeArray();
+
+            for (int j = 0; j < 3; j++) {
+                for (int i = 0; i < edges[j].triangleListSize(); i++) {
+                    Triangle ti = edges[j].getEdgeTriangleList().get(i);
+                    if (!ti.isVisited()) {
+                        ti.setVisited(true);
+                        myArrayList.add(ti);
+
+                        Point[] points1 = ti.pointArray();
+
+                        for (int k = 0; k < 3; k++) {
+                            if (!points1[k].isVisited()) {
+                                points1[k].setVisited(true);
+                                totalComponentPoints[0]+=1;
+
+                                sum[0] = sum[0] + points[i].getX();
+                                sum[1] = sum[1] + points[i].getY();
+                                sum[2] = sum[2] + points[i].getZ();
+                            }
+                        }
+
+                        queue.enqueue(ti);
+                    }
+                }
+            }
+        }
+    }
+
+
     @Override
     public PointInterface[] CLOSEST_COMPONENTS() {
         MyArrayList<MyArrayList<Point>> componentPoints = new MyArrayList<>();
@@ -1291,12 +1415,12 @@ public class Shape implements ShapeInterface
 
             if (!t.isVisited()) {
                 MyArrayList<Point> temp = new MyArrayList<>();
-                dfsPoints(t, temp);
+                bfsPoints(t, temp);
                 componentPoints.add(temp);
             }
         }
 
-        float minDistance = Integer.MAX_VALUE;
+        float minDistance = Float.MAX_VALUE;
         PointInterface[] res = new PointInterface[2];
 
         for (int i = 0; i < componentPoints.size()-1; i++) {
@@ -1327,7 +1451,7 @@ public class Shape implements ShapeInterface
             allTriangleList.get(i).getP3().setVisited(false);
         }
 
-//        System.out.println(res[0].getX() +" "+ res[0].getY() +" "+res[0].getZ() +"     "+res[1].getX() +" "+ res[1].getY() +" "+res[1].getZ());
+        System.out.println(res[0].getX() +" "+ res[0].getY() +" "+res[0].getZ() +"     "+res[1].getX() +" "+ res[1].getY() +" "+res[1].getZ());
         return res;
     }
 
@@ -1358,6 +1482,49 @@ public class Shape implements ShapeInterface
                 Triangle ti = edges[j].getEdgeTriangleList().get(i);
                 if (!ti.isVisited()) {
                     dfsPoints(ti,myArrayList);
+                }
+            }
+        }
+    }
+
+    private void bfsPoints(Triangle t1, MyArrayList<Point> myArrayList) {
+
+        MyQueue<Triangle> queue = new MyQueue<>();
+        t1.setVisited(true);
+
+        Point[] points = t1.pointArray();
+
+        for (int i = 0; i < 3; i++) {
+            if (!points[i].isVisited()) {
+                points[i].setVisited(true);
+                myArrayList.add(points[i]);
+            }
+        }
+
+        queue.enqueue(t1);
+
+        while (!queue.isEmpty()) {
+            Triangle t = queue.dequeue();
+
+            Edge[] edges = t.edgeArray();
+
+            for (int j = 0; j < 3; j++) {
+                for (int i = 0; i < edges[j].triangleListSize(); i++) {
+                    Triangle ti = edges[j].getEdgeTriangleList().get(i);
+                    if (!ti.isVisited()) {
+                        ti.setVisited(true);
+
+                        Point[] points1 = ti.pointArray();
+
+                        for (int k = 0; k < 3; k++) {
+                            if (!points1[k].isVisited()) {
+                                points1[k].setVisited(true);
+                                myArrayList.add(points1[k]);
+                            }
+                        }
+
+                        queue.enqueue(ti);
+                    }
                 }
             }
         }

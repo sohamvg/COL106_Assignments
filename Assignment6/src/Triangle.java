@@ -5,6 +5,7 @@ public class Triangle implements TriangleInterface {
     private Edge e3; // between p1 p3
     private int timeStamp;
     private boolean visited = false;
+    int level = 0;
 
     public Triangle(Point p1, Point p2, Point p3, Edge e1, Edge e2, Edge e3, int timeStamp) {
         this.p1 = p1;
